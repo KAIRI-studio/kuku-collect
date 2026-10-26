@@ -1,0 +1,1 @@
+{"name": "九九コレクト", "short_name": "九九コレクト", "start_url": "./", "display": "standalone", "background_color": "#101629", "theme_color": "#161c35", "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}], "scope": "./", "orientation": "portrait"}
