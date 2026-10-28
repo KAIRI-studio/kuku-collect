@@ -99,8 +99,8 @@ html,body{height:100%;overflow:hidden}body{display:flex;justify-content:center;b
 .window-weather{position:absolute;bottom:0;left:0;width:100%;height:auto;max-height:100%;aspect-ratio:1;pointer-events:none;z-index:0;overflow:hidden}
 #home .room{z-index:1}
 #home #saveStatus{z-index:1}
-.cloud-drift{animation:window-cloud-drift 65s linear infinite;animation-delay:-40s;animation-play-state:paused}
-.cloud-drift-small{animation-duration:85s;animation-delay:-12s;opacity:.9}
+.cloud-drift{animation:window-cloud-drift 43s linear infinite;animation-delay:-26s;animation-play-state:paused}
+.cloud-drift-small{animation-duration:56s;animation-delay:-8s;opacity:.9}
 #home:not(.hidden) .cloud-drift{animation-play-state:running}
 @keyframes window-cloud-drift{from{transform:translateX(-450px)}to{transform:translateX(220px)}}
 @media(prefers-reduced-motion:reduce){.cloud-drift{animation:none;transform:translateX(0)}.cloud-drift-small{display:none}}
