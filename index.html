@@ -146,17 +146,10 @@ html,body{height:100%;overflow:hidden}body{display:flex;justify-content:center;b
 .friend-card .rarity-lr{color:#a52f37;border-color:#a52f37}.friend-card .rarity-sr{color:#8e601a;border-color:#a77824}
 .friend-card button{background:#fff9e9f2;border-color:#8d7757}.friend-card button:disabled{opacity:.75}
 @keyframes foil-sweep{0%,15%{background-position:110% 0}65%,100%{background-position:-10% 0}}
-/* HBK trio: soft silhouette light, breathing gently around the body. */
+/* Canvas silhouette aura, using the same layered bloom approach as Sengoku Yokai. */
 .room-friend .walk-facing{position:relative;z-index:1}
-.fx-hbk{z-index:0;opacity:.75}
-.fx-hbk .aura-bloom{transform-box:fill-box;transform-origin:center;animation:hbk-breathe 5s ease-in-out infinite;animation-delay:var(--fx-delay,0s)}
-.fx-hbk .aura-drift{animation:hbk-drift 6.8s ease-in-out infinite;animation-delay:var(--fx-delay,0s);transform-box:fill-box;transform-origin:center}
-.room-friend[data-character="3"] .puppet-art,.room-friend[data-character="4"] .puppet-art,.room-friend[data-character="5"] .puppet-art{filter:drop-shadow(0 0 2px #ed6b6180) drop-shadow(0 0 5px #d9344260);animation:hbk-outline 5s ease-in-out infinite!important}
-.room-friend[data-character="4"] .puppet-art{animation-delay:-1.7s!important}.room-friend[data-character="5"] .puppet-art{animation-delay:-3.3s!important}
-@keyframes hbk-breathe{0%,100%{opacity:.5;transform:scale(.96)}50%{opacity:.85;transform:scale(1.04)}}
-@keyframes hbk-drift{0%,100%{opacity:.35;transform:translate(0,2px) scale(.95)}50%{opacity:.65;transform:translate(1px,-3px) scale(1.04)}}
-@keyframes hbk-outline{0%,100%{filter:drop-shadow(0 0 2px #ed6b6170) drop-shadow(0 0 4px #d9344250)}50%{filter:drop-shadow(0 0 3px #ed6b6190) drop-shadow(0 0 7px #d9344270)}}
-@media(prefers-reduced-motion:reduce){.room-friend[data-character="3"] .puppet-art,.room-friend[data-character="4"] .puppet-art,.room-friend[data-character="5"] .puppet-art{animation:none!important}}
+.hbk-canvas{position:absolute;top:0;left:0;width:100%;height:115px;object-fit:contain;pointer-events:none;z-index:0}
+@media(max-height:610px){.hbk-canvas{height:95px}}
 .fx-tsuki .fx-particle{filter:drop-shadow(0 0 1.5px #fff5d8)}
 @keyframes fx-blue-trail{0%{opacity:0;transform:translate(8px,-1px) scale(1)}15%{opacity:1}70%{opacity:.85}100%{opacity:0;transform:translate(-23px,1px) scale(.45)}}
 @media(prefers-reduced-motion:reduce){.friend-card::after{animation:none!important}.room-friend[data-character="3"] .puppet-art,.room-friend[data-character="4"] .puppet-art,.room-friend[data-character="5"] .puppet-art{filter:drop-shadow(0 0 2px #e84b35)}}
@@ -191,10 +184,48 @@ u.onstart=()=>{if(run!==speechRun)return;clearSpeechUI();document.querySelectorA
 u.onend=()=>{if(run===speechRun)next()};u.onerror=()=>{if(run===speechRun){speechActive=false;speechAll=false;clearSpeechUI();let status=document.querySelector('#speechStatus');if(status)status.textContent='再生できませんでした。もう一度おしてね。'}};speechSynthesis.speak(u)}next()}
 function speak(t){let active=[...document.querySelectorAll('#lines .is-speaking span')].some(e=>e.textContent===t);if(active){stopSpeech();return}playSpeech([t])}
 function show(id){if(id!=='home')stopRoomWalk();stopSpeech();['home','select','learn','quiz','result','collection','gacha'].forEach(x=>$(x).classList.toggle('hidden',x!==id));if(id==='home'||id==='select')home();if(id==='learn')renderLearn();if(id==='collection')collection();if(id==='gacha')renderGacha();document.querySelectorAll('nav [data-dest]').forEach(b=>b.setAttribute('aria-current',(b.dataset.dest===(['learn','quiz','result'].includes(id)?'select':id))?'page':'false'));window.scrollTo(0,0)}
+
+// Cache three alpha silhouettes per companion. Reuse the room animation lifecycle.
+const hbkAuraCache=new Map(),hbkReduced=matchMedia('(prefers-reduced-motion: reduce)');
+function hbkAuraAssets(i){
+ if(hbkAuraCache.has(i))return hbkAuraCache.get(i);
+ const entry={ready:false,views:[]},a=rigAssets[i],image=new Image();hbkAuraCache.set(i,entry);
+ image.onload=()=>{for(let k=0;k<3;k++){
+  const mask=document.createElement('canvas');mask.width=248;mask.height=240;const m=mask.getContext('2d',{willReadFrequently:true});m.scale(2,2);m.translate(12,0);
+  const br=a.parts[k*3],h=90,w=h*br[2]/br[3],x=50-w*a.hips[k];
+  m.save();if(a.mirrorSide&&k===1){m.translate(100,0);m.scale(-1,1)}m.drawImage(image,...br,x,11,w,h);m.restore();
+  m.fillStyle='#fff';[k===1?45:36,k===1?55:64].forEach(cx=>{m.beginPath();m.ellipse(cx,105,11.5,7,0,0,Math.PI*2);m.fill()});
+  const pixels=m.getImageData(0,0,248,240).data,edges=[[],[]];for(let y=20;y<224;y+=4){let l=248,r=-1;for(let x=0;x<248;x++)if(pixels[(y*248+x)*4+3]>100){l=Math.min(l,x);r=x}if(r>=l){edges[0].push([l/2,y/2]);edges[1].push([r/2,y/2])}}
+  m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='source-in';m.fillStyle='#ec304d';m.fillRect(0,0,248,240);entry.views.push({mask,edges});
+ }entry.ready=true};image.src=a.src;return entry;
+}
+function paintHBKAura(w,now){
+ const i=Number(w.el.dataset.character);if(i<3||i>5)return;
+ const canvas=w.el.querySelector('.hbk-canvas'),assets=hbkAuraAssets(i);if(!canvas||!assets.ready)return;
+ if(now-(canvas._auraFrame||0)<33)return;canvas._auraFrame=now;
+ const k=w.view==='side'?1:w.view==='back'?2:0,{mask,edges}=assets.views[k],c=canvas.getContext('2d'),still=hbkReduced.matches,t=still?1:now/1000+(i-3)*1.8;
+ c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,248,240);c.save();c.scale(2,2);if(w.face<0){c.translate(124,0);c.scale(-1,1)}
+ // Broad red spill and a tighter light band both follow the actual character alpha.
+ c.globalAlpha=.32+.05*Math.sin(t*1.4);c.filter='blur(5px)';c.drawImage(mask,0,0,124,120);
+ c.globalAlpha=.6;c.filter='blur(1.8px)';c.drawImage(mask,0,0,124,120);c.filter='none';
+ if(!still){
+  // Short, softly irregular highlights travel along the silhouette, never a fixed flame outline.
+  edges.forEach((edge,side)=>{for(let j=0;j<3;j++){const p=(t*(.13+j*.018)+j*.31+side*.17)%1,n=edge.length,start=Math.floor(p*n),points=edge.slice(start,start+Math.max(3,Math.floor(n*.18)));if(points.length<2)continue;
+   c.beginPath();points.forEach(([x,y],q)=>{x+=(side?1:-1)*(.9+Math.sin(t*2.1+q*.7+j)*.55);q?c.lineTo(x,y):c.moveTo(x,y)});
+   c.globalAlpha=Math.sin(p*Math.PI)*.7;c.strokeStyle='#ff596a';c.lineWidth=2.4;c.shadowColor='#ef2346';c.shadowBlur=5;c.lineCap='round';c.stroke();c.strokeStyle='#ffd2cb';c.lineWidth=.65;c.shadowBlur=1;c.stroke();
+  }});
+  c.shadowBlur=0;
+  for(let j=0;j<12;j++){const p=(t*(.09+j%3*.018)+j*.618)%1,y=112-p*96,side=j%2?1:-1,x=62+side*(23+j%4*3)+Math.sin(t*.8+j)*3,alpha=Math.sin(p*Math.PI)**2*.55;
+   c.globalAlpha=alpha;c.fillStyle=j%3?'#ff8890':'#ffe0ce';c.shadowColor='#f13450';c.shadowBlur=3;c.beginPath();c.arc(x,y,j%3===0?.7:.4,0,Math.PI*2);c.fill();
+  }
+ }
+ c.restore();
+}
+
 function friendEffects(i){
  const star=(x,y,size,delay,color='#f2cd70')=>'<g class="fx-particle" style="--fx-delay:'+delay+'s"><path d="M0 -6 1.8 -1.8 6 0 1.8 1.8 0 6 -1.8 1.8 -6 0 -1.8 -1.8Z" transform="translate('+x+' '+y+') scale('+size+')" fill="'+color+'" stroke="#a88340" stroke-width="1.2" stroke-linejoin="round"/></g>';
  let type='',art='';
- if(i>=3&&i<=5){type='hbk';let id='hbk-soft-'+i;art='<defs><radialGradient id="'+id+'"><stop stop-color="#f4515d" stop-opacity=".4"/><stop offset=".48" stop-color="#e73c50" stop-opacity=".26"/><stop offset="1" stop-color="#db2845" stop-opacity="0"/></radialGradient></defs><ellipse class="aura-bloom" style="--fx-delay:'+(-(i-3)*1.7)+'s" cx="50" cy="67" rx="43" ry="49" fill="url(#'+id+')"/><g fill="url(#'+id+')"><ellipse class="aura-drift" cx="23" cy="73" rx="16" ry="32"/><ellipse class="aura-drift" style="--fx-delay:-3.4s" cx="77" cy="67" rx="16" ry="35"/></g>'}
+ if(i>=3&&i<=5)return '<canvas class="hbk-canvas" width="248" height="240" aria-hidden="true"></canvas>';
 
  if(i===12){type='hoshi';art=star(17,11,.75,-.8)+star(79,-2,.6,-2.2)+star(43,-10,.45,-3.4)}
  if(i===13){type='tsuki';art=[[-2,97,4.7,-.2],[7,88,3.7,-1.1],[-8,79,4.1,-1.8],[13,101,3.3,-2.3]].map(([x,y,r,d])=>'<circle class="fx-particle" style="--fx-delay:'+d+'s" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#fff5cb" stroke="#986290" stroke-width="1.5"/>').join('')}
@@ -218,7 +249,7 @@ let walkFrame=0,roomWalkers=[];
 function stopRoomWalk(){cancelAnimationFrame(walkFrame);walkFrame=0}
 function startRoomWalk(){stopRoomWalk();if($('home').classList.contains('hidden'))return;let area=$('roomFriends'),room=$('home').querySelector('.room-art');let sceneW=room?room.clientWidth:area.parentElement.clientWidth;area.style.setProperty('height',sceneW*.23+'px','important');area.style.setProperty('bottom',sceneW*.045+'px','important');let aw=area.clientWidth,ah=area.clientHeight;function destination(w){let x,y;do{x=Math.random()*(aw-w.el.offsetWidth);y=Math.random()*ah}while(x>aw*.67&&y<ah*.28);w.tx=x;w.ty=y;w.speed=15+Math.random()*6}
 roomWalkers=[...area.querySelectorAll('.room-friend')].map((el,i)=>{let w={el,x:(aw-el.offsetWidth)*(i+1)/(area.children.length+1),y:ah*(.25+(i%3)*.3),phase:Math.random()*Math.PI*2,wait:1+i*.5,view:'front',face:1,speed:18};destination(w);return w});let last=0;function tick(t){let dt=last?Math.min((t-last)/1000,.05):0;last=t;if(!$('home').classList.contains('hidden')&&!document.hidden){for(let w of roomWalkers){let moving=false;if(w.wait>0){w.wait-=dt;w.view='front';w.face=1;if(w.wait<=0)destination(w)}else{let dx=w.tx-w.x,dy=w.ty-w.y,dist=Math.hypot(dx,dy);if(dist<1){w.wait=1.5+Math.random()*3}else{let step=Math.min(dist,w.speed*dt);w.x+=dx/dist*step;w.y+=dy/dist*step;w.phase+=step/15*Math.PI*2;moving=true;if(Math.abs(dy)>Math.abs(dx)*.8){w.view=dy<0?'back':'front';w.face=1}else{w.view='side';w.face=dx<0?-1:1}}}
-let depth=w.y/ah,scale=1;w.el.style.transform='translate('+w.x+'px,'+(w.y-ah)+'px) scale('+scale+')';w.el.style.zIndex=String(Math.round(100+depth*100));w.el.classList.toggle('is-walking',moving);w.el.dataset.direction=w.view;w.el.dataset.facing=w.face===-1?'left':'right';w.el.querySelector('.walk-facing').style.transform='scaleX('+w.face+')';let phase=w.phase;w.el.querySelectorAll('.rig-view').forEach(v=>{let on=v.classList.contains('rig-'+w.view);v.style.display=on?'inline':'none';if(!on)return;poseRig(v,w.view,phase,moving,t)})}}walkFrame=requestAnimationFrame(tick)}walkFrame=requestAnimationFrame(tick)}
+let depth=w.y/ah,scale=1;w.el.style.transform='translate('+w.x+'px,'+(w.y-ah)+'px) scale('+scale+')';w.el.style.zIndex=String(Math.round(100+depth*100));w.el.classList.toggle('is-walking',moving);w.el.dataset.direction=w.view;w.el.dataset.facing=w.face===-1?'left':'right';w.el.querySelector('.walk-facing').style.transform='scaleX('+w.face+')';let phase=w.phase;w.el.querySelectorAll('.rig-view').forEach(v=>{let on=v.classList.contains('rig-'+w.view);v.style.display=on?'inline':'none';if(!on)return;poseRig(v,w.view,phase,moving,t)});paintHBKAura(w,t)}}walkFrame=requestAnimationFrame(tick)}walkFrame=requestAnimationFrame(tick)}
 if(!Array.isArray(state.favorites))state.favorites=[];
 function updatePoints(){$('points').textContent='✦ '+state.points+' pt'}
 function renderGacha(){updatePoints();$('gachaBalance').textContent='もっているポイント：'+state.points+' pt';$('drawButton').disabled=state.points<100;$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'ポイントで ひけるよ':'1かい100ポイント。同じこがでることもあるよ。'}
