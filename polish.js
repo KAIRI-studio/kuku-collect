@@ -3,7 +3,7 @@
  const query=new URLSearchParams(location.search);if(query.has('walk-review'))return;
  const Rules=window.KukuRules;Rules.init(state);
  const base={home:window.home,show:window.show,learn:window.renderLearn,collection:window.collection,gacha:window.renderGacha};
- let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],speechTimer=0;
+ let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],speechTimer=0,revealPreviousFocus=null;
  let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null;
  const app=document.querySelector('.app');
  const audioIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h6l7-6v20l-7-6H5z" fill="currentColor"/><path d="M22 11q5 5 0 10M26 7q8 9 0 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
@@ -34,7 +34,7 @@
  }
  window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();if(launchOpen)stopRoomWalk()};
  window.show=function(id){clearChoiceSpeech();base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
- window.renderLearn=function(){base.learn();const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう初めての正解は <b>10</b>ポイント！';$('nextGachaHint').textContent=(state.points>=100?'ガチャがひけるよ！':'あと'+(100-state.points)+'ポイントで ガチャ1かい')+' ・ 初クリア ＋30pt';};
+ window.renderLearn=function(){base.learn();const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう はじめてなら <b>10</b>ポイント！';$('nextGachaHint').textContent=(state.points>=100?'ガチャがひけるよ！':'あと'+(100-state.points)+'ポイントで ガチャ1かい')+' ・ はじめてクリア ＋30pt';};
  function prepareQuiz(items,mode){
   clearChoiceSpeech();stopSpeech();quizMode=mode;questions=items;index=0;correct=0;sessionPoints=0;sessionWrong=[];show('quiz');renderQuestion();
  }
@@ -66,6 +66,7 @@
  window.nextQuestion=function(){if(!answered)return;index++;if(index<questions.length)renderQuestion();else finish()};
  function following(){
   if(quizMode==='normal'){if(group<2)return {kind:'learn',d:dan,g:group+1,label:'つぎの3つへ'};if(dan<9)return {kind:'learn',d:dan+1,g:0,label:(dan+1)+'のだんへ'}}
+  if(quizMode==='review'&&questions.length){const first=questions[0],g=Math.floor((first.n-1)/3);if(questions.every(q=>q.d===first.d&&Math.floor((q.n-1)/3)===g)&&!state.clears[first.d+'-'+g])return {kind:'learn',d:first.d,g,label:first.d+'のだんを まとめてチャレンジ'}}
   return Rules.next(state);
  }
  window.finish=function(){
@@ -108,14 +109,14 @@
   animateRevealAura();effectSound(r.rarity==='LR'?'legend':'correct');main.focus();
  }
  function reveal(r){
-  clearRevealTimers();gachaBusy=true;revealDone=false;revealResult=r;lockApp(true);const view=$('gachaReveal');view.hidden=false;view.className='gacha-reveal reveal-'+r.rarity.toLowerCase();
+  clearRevealTimers();gachaBusy=true;revealDone=false;revealResult=r;revealPreviousFocus=document.activeElement;lockApp(true);const view=$('gachaReveal');view.hidden=false;view.className='gacha-reveal reveal-'+r.rarity.toLowerCase();$('revealHeadline').textContent='なかまガチャ';
   $('revealContent').hidden=true;$('revealSkip').hidden=false;$('revealSkip').focus();$('revealLoading').textContent=r.source==='exchange'?'なかまを よびにいくよ…':'だれが あそびにくるかな？';
   effectSound('capsule');later(()=>view.classList.add('is-opening'),800);later(finishReveal,1350);renderGacha();
  }
  window.drawGacha=function(){if(gachaBusy)return;const result=Rules.draw(state,rarityCodes);if(!result)return;save();updatePoints();reveal(result)};
  window.exchangeCharacter=function(i){if(gachaBusy)return;const result=Rules.exchange(state,i,rarityCodes);if(!result)return;save();reveal(result)};
  window.skipGachaReveal=function(){finishReveal()};
- window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();$('drawButton').focus()};
+ window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
  window.openHowTo=function(){$('howToOverlay').hidden=false;$('titleScreen').inert=true;$('howToClose').focus()};
  window.closeHowTo=function(){$('howToOverlay').hidden=true;$('titleScreen').inert=false;$('titleStart').focus()};
  window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleStart').focus()};
