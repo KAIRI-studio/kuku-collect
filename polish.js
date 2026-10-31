@@ -24,7 +24,7 @@
  function clearChoiceSpeech(){clearTimeout(speechTimer);speechTimer=0}
  function runTarget(target){target=target||Rules.next(state);if(target.kind==='review')startReview(target.items);else{dan=target.d;group=target.g;show('learn')}}
  window.startRecommended=function(){runTarget(Rules.next(state))};
- window.returnToTitle=function(){if(gachaBusy)return;stopRoomWalk();stopSpeech();clearChoiceSpeech();launchOpen=true;lockApp(true);document.body.classList.add('booting');$('titleScreen').hidden=false;$('titleStart').focus()};
+ window.returnToTitle=function(){if(gachaBusy)return;stopRoomWalk();stopSpeech();clearChoiceSpeech();launchOpen=true;lockApp(true);document.body.classList.add('booting');$('titleScreen').hidden=false;$('titleScreen').focus()};
  function renderJourney(){
   const all=Rules.mastery(state);let board=$('homeJourney');
   if(!board){board=document.createElement('div');board.id='homeJourney';$('home').append(board)}
@@ -134,11 +134,11 @@
  window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
  window.openHowTo=function(){$('howToOverlay').hidden=false;$('titleScreen').inert=true;$('howToClose').focus()};
  window.closeHowTo=function(){$('howToOverlay').hidden=true;$('titleScreen').inert=false;$('titleStart').focus()};
- window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleStart').focus()};
+ window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleScreen').focus()};
  window.enterGame=function(){
   if(launchBusy)return;launchBusy=true;effectSound('start');const shutter=$('sceneShutter');shutter.hidden=false;requestAnimationFrame(()=>shutter.classList.add('closed'));
   setTimeout(()=>{launchOpen=false;$('titleScreen').hidden=true;$('brandScreen').hidden=true;document.body.classList.remove('booting');lockApp(false);show('home')},260);
-  setTimeout(()=>shutter.classList.remove('closed'),340);setTimeout(()=>{shutter.hidden=true;launchBusy=false;$('homeRecommendation').querySelector('.recommend-go').focus()},620);
+  setTimeout(()=>shutter.classList.remove('closed'),340);setTimeout(()=>{shutter.hidden=true;launchBusy=false;$('home').focus()},620);
  };
  const sound=document.createElement('button');sound.className='sound-toggle';sound.dataset.effectsToggle='';sound.onclick=toggleEffects;document.querySelector('.app>header').append(sound);updateSoundButtons();
  $('quiz').querySelector(':scope >button').onclick=()=>{const q=questions[index];if(q){dan=q.d;group=Math.floor((q.n-1)/3)}show('learn')};

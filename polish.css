@@ -72,4 +72,6 @@ nav{background:#f8eed5}nav button[aria-current="page"]{background:#e5d7b6;box-sh
 @media(max-height:650px){#homeJourney{top:110px;padding:7px 12px}.journey-heading{font-size:12px}.journey-caption{font-size:11px}.recommend-top{font-size:11px}.recommend-go{font-size:14px}#homeRecommendation{padding:7px 11px}#learn .gacha-progress{font-size:11px}#learn .learn-instruction{font-size:11px}#gacha:not(.hidden){gap:6px;padding-top:7px}#gacha h2{font-size:21px}#gachaFragments{margin-top:3px}.gacha-rules{margin-top:4px}#gachaHint{margin:5px 0!important}#drawButton{min-height:44px}#gacha>button{min-height:38px}}
 @media(prefers-reduced-motion:reduce){.journey-track span{transition:none}}
 @media(max-height:740px){#homeJourney{left:54%;right:14px;top:116px;padding:9px 11px}.journey-heading{flex-direction:column;align-items:flex-start;gap:3px;font-size:12px}.journey-heading strong{font-size:21px}.journey-caption span+span{display:none}}
+.title-copy p{top:auto;bottom:calc(100% + 22px);margin:0;line-height:1.6}
+.launch-title:focus,#home:focus{outline:none}
 
