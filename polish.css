@@ -74,4 +74,5 @@ nav{background:#f8eed5}nav button[aria-current="page"]{background:#e5d7b6;box-sh
 @media(max-height:740px){#homeJourney{left:54%;right:14px;top:116px;padding:9px 11px}.journey-heading{flex-direction:column;align-items:flex-start;gap:3px;font-size:12px}.journey-heading strong{font-size:21px}.journey-caption span+span{display:none}}
 .title-copy p{top:auto;bottom:calc(100% + 22px);margin:0;line-height:1.6}
 .launch-title:focus,#home:focus{outline:none}
+#gachaResult{display:none!important}
 
