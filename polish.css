@@ -11,3 +11,65 @@
 @keyframes capsule-rock{25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}@keyframes reward-pop{0%{opacity:0;transform:translateY(12px) scale(.8)}70%{transform:translateY(-2px) scale(1.04)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-height:700px){.title-copy p{font-size:11px;margin-top:8px}.title-controls{bottom:max(10%,calc(env(safe-area-inset-bottom) + 22px));gap:7px}.title-start{min-height:48px;font-size:20px}.title-help{min-height:30px;padding:5px}#homeRecommendation{top:9px;padding:6px 10px}.recommend-go{font-size:14px;padding:4px 0}.recommend-top{font-size:9px;margin-bottom:2px}.reveal-card{padding:10px 12px}.reveal-content h2{font-size:19px;margin:7px 0}.reward-hero.room-friend{height:140px;width:140px!important}.reward-hero .character-art{height:140px!important}.reveal-content h3{font-size:20px}.reveal-content p{margin:7px 0 10px}#rewardEmoji{width:70px;height:70px}#result .panel{padding:12px}#resultBreakdown{margin:8px 0;padding:7px 10px}#result h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.brand-screen img,.title-game-logo,.title-light,.title-motes i,.perfect-result #rewardEmoji,.capsule-display,.reveal-content,.gacha-reveal.is-revealed .reveal-card,.reward-hero.room-friend{animation:none!important}.scene-shutter:before,.scene-shutter:after{transition:none}.reveal-burst{transition:opacity .3s;transform:translate(-50%,-50%)!important}.capsule-top,.capsule-bottom{transition:opacity .3s}}
+
+/* Flat, warm room artwork is the visual reference for every screen. */
+:root{--ink:#65482d;--quiet:#78664f;--paper:#faf3e3;--edge:#b39c75;--leaf:#8fa77d;--gold:#e9c878}
+body,.app{background:var(--paper);color:var(--ink)}
+button{line-height:1.4}button:focus-visible{outline:3px solid #688b9e;outline-offset:3px}button:focus:not(:focus-visible){outline:none}
+h2,h3{text-shadow:none;letter-spacing:.02em}h2{font-size:23px}
+.muted,.small.muted{color:var(--quiet)}.panel{border-color:#d3c5ac;border-radius:22px;background:#fffcf4}
+.primary{background:var(--gold);border-color:#a58a52}.secondary{background:#c3d8df;border-color:#8ca6ae}
+.launch-title{background:var(--paper)}
+.title-background{inset:auto auto 0 0;width:100%;height:auto;max-height:74%;object-fit:contain;object-position:center bottom;z-index:-1;mask-image:none}
+.title-game-logo{filter:drop-shadow(0 3px 0 #fff9ec)}
+.title-copy p{color:var(--ink);font-size:14px;text-shadow:0 1px #fff9ec;margin-top:17px}
+.title-controls{bottom:max(12%,calc(env(safe-area-inset-bottom) + 32px));gap:12px}
+.title-start{background:var(--gold);border-color:#957341;box-shadow:0 4px 0 #a28451;font-size:22px}
+.title-help{min-height:42px;background:#fff9e8f5;border:2px solid var(--edge);font-size:13px}
+.title-credit{bottom:max(13px,env(safe-area-inset-bottom));font-size:11px}
+.app>header{border-bottom:1px solid #e4d7bd;min-height:62px;background:var(--paper);gap:10px}
+.app>header #points{font-size:12px;padding:7px 9px}.app>header .art-logo{max-width:54%}
+nav{background:#f8eed5}nav button[aria-current="page"]{background:#e5d7b6;box-shadow:inset 0 0 0 1px #c6af81}
+#homeRecommendation{top:18px;left:18px;right:18px;border:2px solid var(--edge);border-radius:20px;padding:12px 14px;background:#fff9e9;box-shadow:0 3px 0 #daccaf}
+.recommend-top{font-size:12px;color:var(--quiet);margin-bottom:7px}.recommend-top .text-button{font-size:12px;min-height:28px;padding:3px 6px}.recommend-go{font-size:17px;padding:5px 0;gap:8px;align-items:center;min-height:34px;color:var(--ink)}
+#homeJourney{position:absolute;top:137px;left:24px;right:24px;z-index:2;border:2px solid #d0bea0;border-radius:17px;background:#f4ead4;padding:12px 15px;box-shadow:0 3px 0 #e6d8ba}
+.journey-heading,.journey-caption{display:flex;justify-content:space-between;align-items:center;gap:8px}.journey-heading{font-size:13px;font-weight:800}.journey-heading strong{font-size:22px;color:#587447}.journey-heading small{font-size:12px;font-weight:600;color:var(--quiet)}
+.journey-track{height:9px;background:#e0d4b9;border-radius:9px;overflow:hidden;margin:8px 0}.journey-track span{display:block;height:100%;border-radius:9px;background:#94ac7f;transition:width .3s}
+.journey-caption{font-size:12px;color:var(--quiet)}
+#home .room-art{mask-image:none;-webkit-mask-image:none}#home #saveStatus{color:#665335}
+#selectRecommendation{padding:12px;background:#edf1df;border-color:#bdcba9;margin:14px 0 12px;border-radius:20px}
+#selectRecommendation button{font-size:15px;min-height:44px;padding:9px 6px}#selectRecommendation p{font-size:12px;color:#61714f;margin:7px 0 0}
+#select>.panel{margin:12px 0;padding:18px}#select h2{margin:0 0 16px}#select>.panel>p{font-size:13px;line-height:1.6}
+#danButtons{gap:9px}#danButtons .dan-card{padding:11px 4px;display:flex;flex-direction:column;align-items:center;gap:8px;background:#f2ead8;color:var(--ink);border:2px solid var(--edge);box-shadow:0 2px 0 #deceb0}
+#danButtons .dan-card.active{background:#f0d48f!important;color:var(--ink)!important;border-color:#a18650}
+#danButtons .dan-steady{border-color:#829a6f;background:#e9efdc}#danButtons strong{font-size:23px;line-height:1}#danButtons strong small{font-size:13px;margin-left:2px}.dan-status{font-size:11px;white-space:nowrap}
+.dan-dots{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;width:85%;max-width:95px}.dan-dots i{height:6px;border-radius:2px;background:#d3c7ad}.dan-dots .dot-practice,.practice-dot{background:#d4aa52}.dan-dots .dot-steady,.steady-dot{background:#76965f}.dan-dots .dot-review{background:#bd7867}
+.progress-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;line-height:1.6;color:var(--quiet);border-top:1px solid #ded1b7;padding-top:12px}.progress-legend span{display:flex;align-items:center;gap:5px}.progress-legend i{width:9px;height:9px;border-radius:3px}.progress-legend p{width:100%;margin:0;font-size:12px}
+#learn .learn-instruction{font-size:12px;color:var(--quiet);line-height:1.5}#learn .step-copy small{font-size:11px;color:var(--quiet)}#learn .gacha-progress{font-size:12px;line-height:1.5;color:var(--quiet)}#learn .learn-pages p{font-size:12px}
+#learn .line{border-radius:13px}#learn .learn-pages button{min-height:36px}.step-copy strong{font-size:16px}
+#quiz .quiz-reward{font-size:13px}#quiz .panel{padding:18px}#quiz .status{font-size:15px;line-height:1.6;margin:14px 0;min-height:26px}#quiz>button{font-size:14px;min-height:44px}#quiz .choices button{border-color:#a58a5b;border-radius:17px}
+#result .panel{padding:22px 18px;margin-top:18px}#result h2{font-size:23px;margin-top:14px}#resultActions{gap:11px}#resultActions button{min-height:46px;font-size:15px}#resultBreakdown{padding:12px;font-size:13px;background:#f2ead8}#resultBreakdown p{font-size:12px}.result-milestone{font-size:12px;color:#60774f;background:#edf1df;border-radius:12px;padding:9px;line-height:1.6}
+#collection>.panel{border:0;background:none;padding:16px 2px;margin:0;box-shadow:none}#collection h2{margin:0 0 8px}#collection>.panel>.muted{font-size:13px;line-height:1.5;margin:8px 0}
+.collection-filter{gap:8px;margin:14px 0 10px}.collection-filter button{min-height:42px;font-size:13px;padding:8px 4px}
+#collectionWallet{padding:9px 10px;margin:10px 0;gap:7px;border-radius:14px}#collectionWallet .fragment-balance{font-size:12px}#collectionWallet .text-button{font-size:12px;min-height:30px}
+#clearRoomButton{font-size:12px;min-height:36px;padding:7px 12px;width:auto;display:block;margin-left:auto;border-color:#bda889;background:#fff9ec;color:var(--quiet)}.room-action-status:empty{display:none}.room-action-status{font-size:12px;line-height:1.5}
+#monsters{gap:12px}.rarity-group{margin-top:8px;padding:10px 12px;font-size:13px;border-radius:12px}.rarity-group small{font-size:12px}
+.friend-card{border-radius:20px;padding:12px 7px 10px;background:#eaf0df;border:2px solid #a5b28e;box-shadow:0 3px 0 #d2d8be}
+.friend-card.card-r{background:#e8eff3;border-color:#8fa5b3}.friend-card.card-sr{background:#f9e8b7;border-color:#b59a59}.friend-card.card-lr{background:#f7d9cd;border-color:#b7766a}
+.friend-card.card-r::before,.friend-card.card-sr::before,.friend-card.card-lr::before{opacity:.15;background-size:100% 100%,42px 42px}
+.friend-card.card-r::after,.friend-card.card-sr::after,.friend-card.card-lr::after{opacity:.23}
+.friend-card .rarity-tag{font-size:10px;padding:4px 7px;border-width:1px;box-shadow:none}.friend-card>p,.friend-card.card-r>p,.friend-card.card-sr>p,.friend-card.card-lr>p{font-size:14px;line-height:1.5;margin:6px auto 10px;padding:2px 5px;background:transparent;color:var(--ink);font-weight:800}
+.friend-card button{min-height:44px;font-size:12px;padding:8px 3px;background:#fffbef;border-width:2px;border-color:#aa9472;border-radius:13px}.friend-card.in-room button{background:#dce8c9;border-color:#8c9e70}.friend-card.in-room{transform:none!important}.room-badge{font-size:10px}
+/* The capsule and the primary action share the available screen height. */
+.app>#gacha:not(.hidden){display:flex;flex-direction:column;gap:8px;padding:10px 14px 12px;overflow:auto}
+#gacha>.center{flex:none}#gacha h2{font-size:23px;margin:0 0 5px}#gacha>.center .muted{font-size:13px;margin:0}#gacha .eyebrow{display:none}
+#gacha .gacha-art-stage{position:relative;flex:1 1 auto;width:100%;min-height:90px;height:auto;max-height:330px;margin:0;overflow:hidden}
+#gacha .gacha-machine-art{position:absolute;inset:0;margin:auto;height:100%;max-height:100%;width:100%;max-width:100%;object-fit:contain;filter:none;min-height:0}
+#gacha>.panel{flex:none;padding:12px;margin:0;border-radius:20px}#gachaBalance{font-size:14px;margin:0 0 10px!important}#drawButton{min-height:48px;font-size:16px;padding:10px}#gachaHint{font-size:12px;color:var(--quiet);line-height:1.5;margin:7px 0!important}#gachaFragments{margin:6px 0 0;font-size:12px}
+.gacha-rules{font-size:12px;line-height:1.6;margin:8px 0 0;color:var(--quiet)}.gacha-rules summary{padding:4px;font-size:12px}.gacha-rules[open]{text-align:left}#gacha>button{flex:none;min-height:42px;padding:8px;font-size:14px}
+@media(min-height:840px){#homeJourney{top:150px;padding:16px 18px}.journey-heading{font-size:14px}.journey-heading strong{font-size:25px}}
+@media(max-height:740px){#homeRecommendation{top:12px;left:14px;right:14px;padding:8px 12px}.recommend-top{margin-bottom:2px}.recommend-go{font-size:15px;min-height:30px}#homeJourney{top:116px;padding:8px 12px;left:20px;right:20px}.journey-heading strong{font-size:19px}.journey-track{height:7px;margin:6px 0}.journey-caption{font-size:11px}.title-copy p{font-size:12px;margin-top:12px}.title-controls{bottom:max(10%,calc(env(safe-area-inset-bottom) + 22px));gap:9px}.title-help{min-height:36px}#selectRecommendation{padding:9px;margin:8px 0}#select>.panel{padding:14px;margin:8px 0}#select h2{margin-bottom:12px}#danButtons .dan-card{padding:9px 3px;gap:7px}#select>.panel>p{margin:10px 0;font-size:12px}.progress-legend{font-size:11px;padding-top:9px}.progress-legend p{font-size:11px}#gacha .gacha-art-stage{max-height:260px}#gacha>.panel{padding:10px}#gacha>.center .muted{font-size:12px}#result .panel{padding:16px;margin:10px 0}}
+@media(max-height:650px){#homeJourney{top:110px;padding:7px 12px}.journey-heading{font-size:12px}.journey-caption{font-size:11px}.recommend-top{font-size:11px}.recommend-go{font-size:14px}#homeRecommendation{padding:7px 11px}#learn .gacha-progress{font-size:11px}#learn .learn-instruction{font-size:11px}#gacha:not(.hidden){gap:6px;padding-top:7px}#gacha h2{font-size:21px}#gachaFragments{margin-top:3px}.gacha-rules{margin-top:4px}#gachaHint{margin:5px 0!important}#drawButton{min-height:44px}#gacha>button{min-height:38px}}
+@media(prefers-reduced-motion:reduce){.journey-track span{transition:none}}
+@media(max-height:740px){#homeJourney{left:54%;right:14px;top:116px;padding:9px 11px}.journey-heading{flex-direction:column;align-items:flex-start;gap:3px;font-size:12px}.journey-heading strong{font-size:21px}.journey-caption span+span{display:none}}
+

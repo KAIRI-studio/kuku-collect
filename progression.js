@@ -46,6 +46,17 @@
   for(const d of [2,3,4,5,6,7,8,9,1])for(let g=0;g<3;g++)if(!s.clears[d+'-'+g])return {kind:'learn',d,g,label:d+'のだんを おぼえよう'};
   const part=Math.floor(now/DAY)%27;return {kind:'learn',d:Math.floor(part/3)+1,g:part%3,label:'きょうの おさらい'};
  }
+ function mastery(s,d=null,now=Date.now()){
+  let started=0,steady=0,review=0;const items=[];
+  for(let a=d||1;a<=(d||9);a++)for(let n=1;n<=9;n++){
+   const p=(s.practice||{})[a+'-'+n];let stage='new';
+   if(p){if(p.needsReview)stage='review';else if(p.streak>=3)stage='steady';else if(p.streak>0)stage='practice';
+    if(p.streak>0&&!p.needsReview)started++;if(p.streak>=3&&!p.needsReview)steady++;if(p.needsReview||p.due<=now)review++}
+   items.push({d:a,n,stage});
+  }
+  const clearedSets=Object.entries(s.clears||{}).filter(([id,on])=>on&&(!d||id.startsWith(d+'-'))).length;
+  return {total:d?9:81,started,steady,review,clearedSets,items};
+ }
  function rarity(roll){const r=Math.min(.999999999,Math.max(0,roll))*100;let sum=0;for(const [code,weight]of Object.entries(RATES)){sum+=weight;if(r<sum)return code}return 'LR'}
  function draw(s,codes,random=Math.random,now=Date.now()){
   init(s,now);if(s.points<100)return null;
@@ -60,5 +71,6 @@
   const cost=COSTS[codes[i]];if(!cost||s.fragments<cost)return null;
   s.fragments-=cost;s.owned.push(i);const result={i,rarity:codes[i],fresh:true,fragments:0,source:'exchange',cost,at:now};s.lastDraw=result;return result;
  }
- return {DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,rarity,draw,exchange};
+ return {DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,mastery,rarity,draw,exchange};
 });
+
