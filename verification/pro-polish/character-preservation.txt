@@ -1,0 +1,1 @@
+All 50 character IDs, names, rarities, rig atlases, directional hips, outline and foot metadata match the prior release exactly.

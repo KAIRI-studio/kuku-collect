@@ -1,0 +1,27 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),Rules=require('../../progression.js');
+test('launch, first learning reward, single-charge gacha and room placement execute together',()=>{
+ const html=fs.readFileSync('index.html','utf8'),registry=new Map(),all=[];let doc,clock=0,nextTimer=0;const timers=new Map();
+ class Node{
+  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={};this.attrs={};this.hidden=false;const classes=new Set();this.classList={add:(...a)=>a.forEach(x=>classes.add(x)),remove:(...a)=>a.forEach(x=>classes.delete(x)),contains:x=>classes.has(x),toggle:(x,v)=>{const add=v===undefined?!classes.has(x):v;add?classes.add(x):classes.delete(x);return add}};all.push(this)}
+  set innerHTML(s){this.html=s;this.children=[]}get innerHTML(){return this.html||''}
+  append(...a){for(const n of a){this.children.push(n);if(n.id)registry.set(n.id,n)}}prepend(n){this.children.unshift(n);if(n.id)registry.set(n.id,n)}after(n){if(n.id)registry.set(n.id,n)}setAttribute(k,v){this.attrs[k]=v}getAttribute(k){return this.attrs[k]}
+  querySelector(){return new Node('button')}querySelectorAll(){return []}focus(){doc.activeElement=this}scrollIntoView(){}getClientRects(){return [{}]}
+ }
+ for(const m of html.matchAll(/\bid="([^"]+)"/g))registry.set(m[1],new Node());
+ const app=new Node(),header=new Node();doc={body:new Node(),activeElement:null,hidden:false,querySelector:s=>s==='.app'?app:header,querySelectorAll:()=>[],createElement:tag=>new Node(tag),addEventListener(){}};
+ const $=id=>registry.get(id),state={points:0,owned:[],favorites:[],clears:{}},math=Object.create(Math);math.random=()=>0;
+ const sandbox={document:doc,$,state,location:{search:'?preview-progress=1&screen-review=title'},URLSearchParams,KukuRules:{...Rules,draw:(s,c)=>Rules.draw(s,c,()=>0)},Math:math,Date,Set,Map,HOME_LIMIT:5,dan:2,group:0,questions:[],index:0,correct:0,answered:false,collectionView:'owned',species:['まる','つき'],rarityCodes:['N','R'],character:i=>'<svg>'+i+'</svg>',friendEffects:()=>'',rarityTag:()=>'<span>N</span>',stopRoomWalk(){},stopSpeech(){},speak(){},save(){},updatePoints(){},paintLegendAura(){},renderLearn(){},collection(){},renderGacha(){},home(){},requestAnimationFrame:()=>1,cancelAnimationFrame(){},clearTimeout:id=>timers.delete(id),setTimeout:(fn,ms)=>{const id=++nextTimer;timers.set(id,{fn,at:clock+ms});return id}};
+ sandbox.splitPhrase=(d,n)=>[d+'-'+n,String(d*n)];sandbox.phrase=(d,n)=>d+'-'+n+'='+d*n;
+ sandbox.show=id=>{for(const s of ['home','select','learn','quiz','result','gacha','collection'])$(s).classList.toggle('hidden',s!==id);if(id==='home')sandbox.home();if(id==='learn')sandbox.renderLearn();if(id==='gacha')sandbox.renderGacha()};sandbox.window=sandbox;
+ function advance(ms){const end=clock+ms;for(;;){const pair=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!pair)break;timers.delete(pair[0]);clock=pair[1].at;pair[1].fn()}clock=end}
+ vm.createContext(sandbox);vm.runInContext(fs.readFileSync('polish.js','utf8'),sandbox);
+ assert.equal($('brandScreen').hidden,true);assert.equal($('titleScreen').hidden,false);assert.equal(app.inert,true);
+ sandbox.enterGame();advance(1000);assert.equal(app.inert,false);assert.equal($('titleScreen').hidden,true);
+ sandbox.startQuiz();for(let i=0;i<3;i++){const q=sandbox.questions[sandbox.index],a=String(q.d*q.n);sandbox.choose(a,a);sandbox.nextQuestion()}
+ assert.equal(state.points,100);assert.equal(state.clears['2-0'],true);assert.match($('resultActions').children[0].textContent,/ガチャ/);
+ sandbox.drawGacha();sandbox.drawGacha();assert.equal(state.drawCount,1);assert.equal(state.points,0);assert.deepEqual(state.owned,[0]);assert.equal($('gachaReveal').hidden,false);
+ advance(2000);assert.equal($('revealHeadline').textContent,'あたらしい なかま！');$('revealMain').onclick();assert.deepEqual(state.favorites,[0]);assert.equal($('gachaReveal').hidden,true);assert.equal(app.inert,false);
+ sandbox.startQuiz();for(let i=0;i<3;i++){const q=sandbox.questions[sandbox.index],a=String(q.d*q.n);sandbox.choose(a,a);sandbox.nextQuestion()}assert.equal(state.points,6);assert.match($('resultActions').children[0].textContent,/つぎの3つ/);
+ state.points=100;sandbox.drawGacha();advance(2000);assert.equal(state.fragments,1);assert.equal($('revealHeadline').textContent,'なかまのかけら ゲット！');sandbox.closeGachaReveal();state.fragments=30;sandbox.exchangeCharacter(1);sandbox.exchangeCharacter(1);assert.equal(state.fragments,0);assert.deepEqual(state.owned,[0,1]);advance(2000);assert.equal($('revealHeadline').textContent,'かけらで なかまになった！');sandbox.closeGachaReveal();
+ sandbox.dan=7;sandbox.group=0;sandbox.startQuiz();const missed=sandbox.questions[0];sandbox.choose('wrong',String(missed.d*missed.n));sandbox.nextQuestion();for(let i=1;i<3;i++){const q=sandbox.questions[sandbox.index],a=String(q.d*q.n);sandbox.choose(a,a);sandbox.nextQuestion()}assert.match($('resultActions').children[0].textContent,/ふくしゅう/);$('resultActions').children[0].onclick();assert.equal(sandbox.questions.length,1);const q=sandbox.questions[0],a=String(q.d*q.n);sandbox.choose(a,a);sandbox.nextQuestion();assert.match($('resultActions').children[0].textContent,/7のだんを まとめてチャレンジ/);
+});
