@@ -193,7 +193,7 @@ function hbkAuraAssets(i){
  image.onload=()=>{for(let k=0;k<3;k++){
   const mask=document.createElement('canvas');mask.width=248;mask.height=240;const m=mask.getContext('2d',{willReadFrequently:true});m.scale(2,2);m.translate(12,0);
   const br=a.parts[k*3],h=90,w=h*br[2]/br[3],x=50-w*a.hips[k];
-  m.save();if(a.mirrorSide&&k===1){m.translate(100,0);m.scale(-1,1)}m.drawImage(image,...br,x,11,w,h);m.restore();
+  m.save();if(a.mirrorSide&&k===1){m.translate(100,0);m.scale(-1,1)}m.drawImage(image,br[0]*image.naturalWidth/a.w,br[1]*image.naturalHeight/a.h,br[2]*image.naturalWidth/a.w,br[3]*image.naturalHeight/a.h,x,11,w,h);m.restore();
   m.fillStyle='#fff';[k===1?45:36,k===1?55:64].forEach(cx=>{m.beginPath();m.ellipse(cx,105,11.5,7,0,0,Math.PI*2);m.fill()});
   const pixels=m.getImageData(0,0,248,240).data,edges=[[],[]];for(let y=20;y<224;y+=4){let l=248,r=-1;for(let x=0;x<248;x++)if(pixels[(y*248+x)*4+3]>100){l=Math.min(l,x);r=x}if(r>=l){edges[0].push([l/2,y/2]);edges[1].push([r/2,y/2])}}
   m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='source-in';m.fillStyle='#ec304d';m.fillRect(0,0,248,240);entry.views.push({mask,edges});
