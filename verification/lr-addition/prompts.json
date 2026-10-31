@@ -1,0 +1,34 @@
+[
+  {
+    "id": 46,
+    "name": "らいとら",
+    "tool": "built-in image_gen",
+    "reference": "assets/companion-17.webp",
+    "prompt": "Create a transparent game character sprite sheet in the same gentle flat cartoon style as the supplied elephant reference. New character らいとら: a legendary little THUNDER TIGER. Warm golden-yellow fur, cream muzzle and rounded belly, three dark ochre tiger stripes on forehead and small cheek stripes, tiny rounded ears, a single angular lightning-shaped golden tail held up behind the torso (never below the rump). Very short cloud-shaped cream neck ruff. Friendly dark dot eyes, gentle smile, coral cheeks. No horns, no wings. One horizontal row of exactly three equally sized full-body illustrations: front, right-facing profile, and rear view. The three views show the same character with consistent colours and details, all fully inside generous transparent margins. Use solid pastel colours, simple dot eyes, softly rounded shapes and uniform thick brown #432713 outlines throughout. Match the reference's cute rounded torso and small arms. Each illustration ends at the rounded base of the torso, just like the reference; separate walking shoes will be supplied by the game engine. Keep the lower torso visible and central, with the tail curling upwards. The rear view has a simple back of head and body. No scenery, shadows, labels, captions, borders, separate decorations, or lighting effects. Truly transparent background. Professional clean sprite asset, landscape format.",
+    "asset": "assets/lr-46.webp"
+  },
+  {
+    "id": 47,
+    "name": "あかつき",
+    "tool": "built-in image_gen",
+    "reference": "assets/companion-17.webp",
+    "prompt": "Create a transparent game character sprite sheet in the same gentle flat cartoon style as the supplied elephant reference. New character あかつき: a legendary little PHOENIX BIRD. Deep coral-red body, golden cream face and oval belly, elegant three-feather swept flame-shaped crest, two small folded red wings as arms with gold tips. Small upright fan of three sunset orange/gold tail feathers behind the upper rump (not below it). Tiny golden beak, friendly dark dot eyes and blush. Rounded and sweet, not realistic. One horizontal row of exactly three equally sized full-body illustrations: front, right-facing profile, and rear view. The three views show the same character with consistent colours and details, all fully inside generous transparent margins. Use solid pastel colours, simple dot eyes, softly rounded shapes and uniform thick brown #432713 outlines throughout. Match the reference's cute rounded torso and small arms. Each illustration ends at the rounded base of the torso, just like the reference; separate walking shoes will be supplied by the game engine. Keep the lower torso visible and central, with the tail curling upwards. The rear view has a simple back of head and body. No scenery, shadows, labels, captions, borders, separate decorations, or lighting effects. Truly transparent background. Professional clean sprite asset, landscape format.",
+    "asset": "assets/lr-47.webp"
+  },
+  {
+    "id": 48,
+    "name": "りゅうせい",
+    "tool": "built-in image_gen",
+    "reference": "assets/companion-17.webp",
+    "prompt": "Create a transparent game character sprite sheet in the same gentle flat cartoon style as the supplied elephant reference. New character りゅうせい: a legendary celestial little DRAGON. Muted deep indigo-purple body, pale silver-lilac muzzle and belly, two tiny cream antlers, silver four-point star marking on forehead, two small folded rounded arms. Small curved indigo tail with a pale gold comet-shaped tip pointing UP behind the upper torso, never below rump. Friendly simple dot eyes and little curved smile, blush, with a simple rounded back. One horizontal row of exactly three equally sized full-body illustrations: front, right-facing profile, and rear view. The three views show the same character with consistent colours and details, all fully inside generous transparent margins. Use solid pastel colours, simple dot eyes, softly rounded shapes and uniform thick brown #432713 outlines throughout. Match the reference's cute rounded torso and small arms. Each illustration ends at the rounded base of the torso, just like the reference; separate walking shoes will be supplied by the game engine. Keep the lower torso visible and central, with the tail curling upwards. The rear view has a simple back of head and body. No scenery, shadows, labels, captions, borders, separate decorations, or lighting effects. Truly transparent background. Professional clean sprite asset, landscape format.",
+    "asset": "assets/lr-48.webp"
+  },
+  {
+    "id": 49,
+    "name": "こはくおう",
+    "tool": "built-in image_gen",
+    "reference": "assets/companion-17.webp",
+    "prompt": "Create a transparent game character sprite sheet in the same gentle flat cartoon style as the supplied elephant reference. New character こはくおう: a legendary little AMBER LION KING. Golden tawny body, warm cream face and oval belly, rounded scalloped rich amber mane encircling the head, three small faceted honey-amber crystal points on top of mane like a crown. Two tiny round folded arms. Short small tail with amber tuft held up behind body, no long appendages. Friendly dark dot eyes, calm tiny smile, blush. Facets are 2 or 3 flat colour shapes, no shiny gradients. One horizontal row of exactly three equally sized full-body illustrations: front, right-facing profile, and rear view. The three views show the same character with consistent colours and details, all fully inside generous transparent margins. Use solid pastel colours, simple dot eyes, softly rounded shapes and uniform thick brown #432713 outlines throughout. Match the reference's cute rounded torso and small arms. Each illustration ends at the rounded base of the torso, just like the reference; separate walking shoes will be supplied by the game engine. Keep the lower torso visible and central, with the tail curling upwards. The rear view has a simple back of head and body. No scenery, shadows, labels, captions, borders, separate decorations, or lighting effects. Truly transparent background. Professional clean sprite asset, landscape format.",
+    "asset": "assets/lr-49.webp"
+  }
+]

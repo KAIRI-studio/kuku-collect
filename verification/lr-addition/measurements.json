@@ -1,0 +1,179 @@
+[
+  {
+    "id": 46,
+    "source": "exec-d2da4beb-6549-449d-be4d-dc8e4d590a3d.png",
+    "crops": [
+      [
+        127,
+        45,
+        301,
+        316
+      ],
+      [
+        464,
+        45,
+        278,
+        316
+      ],
+      [
+        789,
+        45,
+        296,
+        316
+      ]
+    ],
+    "hips": [
+      0.46013,
+      0.53597,
+      0.47128
+    ],
+    "sourceStrokeAt90": [
+      2.848,
+      2.563,
+      2.706
+    ],
+    "outlineAdjustment": [
+      0.952,
+      1.237,
+      1.094
+    ],
+    "innerLineAdjustment": [
+      0.226,
+      0.368,
+      0.297
+    ]
+  },
+  {
+    "id": 47,
+    "source": "exec-cea5e365-7325-4f08-a3a9-e7f33c72efab.png",
+    "crops": [
+      [
+        178,
+        22,
+        256,
+        350
+      ],
+      [
+        466,
+        23,
+        269,
+        348
+      ],
+      [
+        788,
+        23,
+        234,
+        349
+      ]
+    ],
+    "hips": [
+      0.46094,
+      0.48885,
+      0.5
+    ],
+    "sourceStrokeAt90": [
+      1.8,
+      1.552,
+      1.805
+    ],
+    "outlineAdjustment": [
+      2.0,
+      2.248,
+      1.995
+    ],
+    "innerLineAdjustment": [
+      0.6,
+      0.6,
+      0.6
+    ]
+  },
+  {
+    "id": 48,
+    "source": "exec-933ba0e3-8c59-4cf0-8e9b-84c871180e08.png",
+    "crops": [
+      [
+        118,
+        20,
+        314,
+        357
+      ],
+      [
+        465,
+        22,
+        293,
+        355
+      ],
+      [
+        807,
+        29,
+        302,
+        348
+      ]
+    ],
+    "hips": [
+      0.49841,
+      0.51365,
+      0.50828
+    ],
+    "sourceStrokeAt90": [
+      2.017,
+      1.775,
+      1.81
+    ],
+    "outlineAdjustment": [
+      1.783,
+      2.025,
+      1.99
+    ],
+    "innerLineAdjustment": [
+      0,
+      0,
+      0
+    ],
+    "note": "Inner dark-pixel thickening disabled after visual review because indigo fill was being mistaken for ink; original arm/face colours preserved."
+  },
+  {
+    "id": 49,
+    "source": "exec-2c2cddd7-4628-49a0-96dc-bc77592f016a.png",
+    "crops": [
+      [
+        162,
+        34,
+        277,
+        339
+      ],
+      [
+        482,
+        34,
+        254,
+        339
+      ],
+      [
+        792,
+        34,
+        273,
+        339
+      ]
+    ],
+    "hips": [
+      0.49819,
+      0.52756,
+      0.50549
+    ],
+    "sourceStrokeAt90": [
+      1.858,
+      1.858,
+      1.858
+    ],
+    "outlineAdjustment": [
+      1.942,
+      1.942,
+      1.942
+    ],
+    "innerLineAdjustment": [
+      0.6,
+      0.6,
+      0.6
+    ]
+  }
+]
