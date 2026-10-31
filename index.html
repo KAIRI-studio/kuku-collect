@@ -153,6 +153,17 @@ html,body{height:100%;overflow:hidden}body{display:flex;justify-content:center;b
 .fx-tsuki .fx-particle{filter:drop-shadow(0 0 1.5px #fff5d8)}
 @keyframes fx-blue-trail{0%{opacity:0;transform:translate(8px,-1px) scale(1)}15%{opacity:1}70%{opacity:.85}100%{opacity:0;transform:translate(-23px,1px) scale(.45)}}
 @media(prefers-reduced-motion:reduce){.friend-card::after{animation:none!important}.room-friend[data-character="3"] .puppet-art,.room-friend[data-character="4"] .puppet-art,.room-friend[data-character="5"] .puppet-art{filter:drop-shadow(0 0 2px #e84b35)}}
+
+/* Shared mobile interaction policy for every screen and dynamic card. */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+img,svg{-webkit-user-drag:none}
+#portraitNotice{display:none}
+@media (orientation:landscape) and (hover:none) and (pointer:coarse){
+  .app{visibility:hidden;pointer-events:none}
+  #portraitNotice{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:#faf6e9;color:#715333;text-align:center;font-weight:800}
+  #portraitNotice svg{width:52px;height:70px}
+}
 </style></head><body><svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none"><defs><image id="ui-sheet" width="2172" height="724" href="./assets/companion-1.webp"/><image id="ui-logo" width="1842" height="854" href="./assets/companion-2.webp"/></defs></svg><main class="app"><header><h1 class="art-logo" aria-label="九九コレクト"><svg viewBox="35 198 1787 453" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><use href="#ui-logo"/></svg></h1><span id="points">⭐ 0</span></header><p class="muted">きいて、おぼえて、なかまとくらそう。</p>
 <section id="home"><img class="room-art" src="./assets/companion-3.webp" width="1254" height="1254" alt="窓とサボテン、青いラグのあるおへや"><svg class="window-weather" viewBox="0 0 1254 1254" aria-hidden="true" focusable="false"><defs><clipPath id="windowSkyClip"><path d="M152 319V245C152 173 221 132 304 131V319Z"/><path d="M331 131H374C466 131 509 173 509 245V319H331Z"/></clipPath></defs><g clip-path="url(#windowSkyClip)"><rect x="150" y="129" width="362" height="192" fill="#91c8f9"/><g class="cloud-drift"><path d="M386 255C386 238 405 224 427 226C431 203 448 187 472 187C500 187 520 209 518 235C537 237 551 248 551 262C551 280 530 289 508 285C488 293 459 291 443 279C416 286 386 275 386 255Z" fill="#fffefd"/></g><g class="cloud-drift cloud-drift-small"><path d="M330 205C330 192 343 183 357 184C362 167 378 160 393 166C406 169 414 180 413 193C431 191 442 202 438 214C435 229 413 231 396 225C373 233 330 229 330 205Z" fill="#fffefd"/></g></g></svg><div class="room"><div id="roomFriends"></div></div><p class="small muted center" id="saveStatus">この端末・ブラウザに自動でほぞんするよ。</p></section>
 <section id="gacha" class="hidden"><div class="center"><p class="eyebrow">がんばったぶんだけ、あたらしいであい</p><h2>なかまガチャ</h2><p class="muted">どんなこが あそびにくるかな？</p></div><div class="gacha-art-stage"><img class="gacha-machine-art" src="./assets/companion-4.webp" alt="青いガチャ本体。カプセルの入ったケースと回すハンドル、取り出し口" width="1280" height="1280"></div><div class="panel center"><p id="gachaBalance"></p><button class="primary" id="drawButton" onclick="drawGacha()">100ポイントで 1かいひく</button><p class="small muted" id="gachaHint"></p></div><div id="gachaResult" class="panel center hidden" aria-live="polite"></div><button onclick="show('select')">九九でポイントをためる ▶</button></section>
@@ -264,6 +275,26 @@ function collection(){$('collectionCount').textContent=state.owned.length+' / '+
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 
 if(new URLSearchParams(location.search).has('walk-review')){stopRoomWalk();document.querySelector('.app').style.display='none';let board=document.createElement('div');board.id='walk-review';board.style='padding:20px;background:#faf3e3;color:#573e25;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:absolute;inset:0;overflow:auto;z-index:999';document.body.append(board);for(let i=0;i<species.length;i++)for(let dir of ['front','side','back']){let query=new URLSearchParams(location.search);if(i<Number(query.get('from')||0)||i>=Number(query.get('to')||species.length))continue;if(new URLSearchParams(location.search).has('focus')&&(i!==Number(new URLSearchParams(location.search).get('focus'))||dir!==(new URLSearchParams(location.search).get('direction')||'front')))continue;if(new URLSearchParams(location.search).has('focus'))board.style.gridTemplateColumns='1fr';let card=document.createElement('div');card.style='background:#fffdf5;border:1px solid #c8b995;border-radius:12px;padding:10px';card.innerHTML='<b>'+species[i]+' / '+dir+'</b><div style="display:flex"></div>';let row=card.querySelector('div');for(let phase of (new URLSearchParams(location.search).has('lines')?[0]:[0,Math.PI/2,Math.PI,Math.PI*1.5])){let holder=document.createElement('div');holder.style=new URLSearchParams(location.search).has('lines')?'width:100%':'width:25%';holder.innerHTML=character(i,true);row.append(holder);let svg=holder.querySelector('svg');svg.style=new URLSearchParams(location.search).has('lines')?'width:100%;height:230px':new URLSearchParams(location.search).has('focus')?'width:100%;height:450px':'width:100%;height:130px';svg.querySelectorAll('.rig-view').forEach(v=>{v.style.display=v.classList.contains('rig-'+dir)?'inline':'none';if(v.style.display==='inline')poseRig(v,dir,phase,true)});}board.append(card)}}
+</script><aside id="portraitNotice" role="status" aria-live="polite"><svg viewBox="0 0 52 70" aria-hidden="true"><rect x="8" y="2" width="36" height="64" rx="7" fill="#fff3d2" stroke="#947748" stroke-width="3"/><path d="M22 59h8" stroke="#947748" stroke-width="3" stroke-linecap="round"/></svg><span>たてにして あそんでね</span></aside><script>
+/* Delegated guards also cover content rendered after navigation. */
+document.addEventListener('contextmenu',event=>event.preventDefault());
+document.addEventListener('selectstart',event=>event.preventDefault());
+document.addEventListener('dragstart',event=>event.preventDefault());
+let lastSingleTap=null;
+document.addEventListener('touchend',event=>{
+  if(event.touches.length||event.changedTouches.length!==1){lastSingleTap=null;return}
+  const tap=event.changedTouches[0],now=performance.now();
+  if(lastSingleTap&&now-lastSingleTap.time<350&&Math.hypot(tap.clientX-lastSingleTap.x,tap.clientY-lastSingleTap.y)<30){
+    event.preventDefault();lastSingleTap=null;
+  }else lastSingleTap={time:now,x:tap.clientX,y:tap.clientY};
+},{passive:false});
+document.addEventListener('touchstart',event=>{if(event.touches.length>1)lastSingleTap=null},{passive:true});
+async function preferPortrait(){
+  try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('portrait')}catch{}
+}
+document.addEventListener('click',preferPortrait,{once:true});
+window.addEventListener('orientationchange',()=>{stopSpeech();preferPortrait()});
+preferPortrait();
 </script></body></html>
 
 
