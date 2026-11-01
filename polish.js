@@ -124,11 +124,9 @@
   show('result');$('result').classList.toggle('perfect-result',perfect);effectSound(perfect?'start':'tap');
  };
  function fragmentBar(){return shardIcon+'<span>かけら <b>'+state.fragments+'</b>こ</span>'}
- window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()};
+ window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()+'<button class="text-button" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'かけらで むかえる ▶')+'</button>';renderRarityExchange()};
  window.collection=function(){
-  base.collection();let wallet=$('collectionWallet');if(!wallet){wallet=document.createElement('div');wallet.id='collectionWallet';$('collectionCount').after(wallet)}
-  wallet.hidden=!state.fragmentExchangeUnlocked;wallet.innerHTML='<div class="fragment-balance">'+fragmentBar()+'</div><button class="text-button" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'むかえる ▶')+'</button>';
-  renderRarityExchange();
+  base.collection();
   for(const card of $('monsters').querySelectorAll('.friend-card')){
    const i=Number(card.dataset.character);if(!Number.isInteger(i)||state.owned.includes(i))continue;
    card.classList.add('locked-card');card.innerHTML=rarityTag(i)+'<div class="locked-art" aria-hidden="true"><span class="unknown-companion">？</span></div><p>？？？</p>';
@@ -173,8 +171,8 @@
  window.drawGacha=function(){if(gachaBusy)return;const result=Rules.draw(state,rarityCodes);if(!result)return;save();updatePoints();reveal(result)};
  function clearFragmentNotice(){clearTimeout(fragmentTimer);$('fragmentNotice').hidden=true}
  function fragmentNotice(message){clearTimeout(fragmentTimer);$('fragmentNotice').textContent=message;$('fragmentNotice').hidden=false;fragmentTimer=setTimeout(()=>{$('fragmentNotice').hidden=true},3800)}
- window.openFragmentCollection=function(){if(!state.fragmentExchangeUnlocked)return;exchangeOpen=true;collection();$('fragmentExchangePanel').scrollIntoView({block:'nearest'})};
- window.toggleFragmentCollection=function(){if(!state.fragmentExchangeUnlocked)return;exchangeOpen=!exchangeOpen;collection();if(exchangeOpen)$('fragmentExchangePanel').scrollIntoView({block:'nearest'})};
+ window.openFragmentCollection=function(){if(!state.fragmentExchangeUnlocked)return;exchangeOpen=true;show('gacha');$('fragmentExchangePanel').scrollIntoView({block:'nearest'})};
+ window.toggleFragmentCollection=function(){if(!state.fragmentExchangeUnlocked)return;exchangeOpen=!exchangeOpen;renderGacha();if(exchangeOpen)$('fragmentExchangePanel').scrollIntoView({block:'nearest'})};
  window.exchangeByRarity=function(code,button){
   if(gachaBusy||!Object.prototype.hasOwnProperty.call(Rules.COSTS,code))return;
   const cost=Rules.COSTS[code],missing=rarityCodes.some((r,i)=>r===code&&!state.owned.includes(i));if(!missing)return;
@@ -182,7 +180,7 @@
   const result=Rules.exchangeRarity(state,code,rarityCodes);if(!result)return;clearFragmentNotice();save();reveal(result);
  };
  window.skipGachaReveal=function(){finishReveal()};
- window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(!$('collection').classList.contains('hidden')){collection();$('collectionWallet').querySelector('button').focus()}else if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
+ window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(!$('collection').classList.contains('hidden')){collection();$('clearRoomButton').focus()}else if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
  window.openHowTo=function(){$('howToOverlay').hidden=false;$('titleScreen').inert=true;$('howToClose').focus()};
  window.closeHowTo=function(){$('howToOverlay').hidden=true;$('titleScreen').inert=false;$('titleStart').focus()};
  window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleScreen').focus()};
