@@ -81,17 +81,7 @@
   const i=pool[Math.floor(Math.min(.999999999,Math.max(0,roll))*pool.length)];return exchange(s,i,codes,now);
  }
 
- function loginStamp(s,now=Date.now()){
-  init(s,now);const today=dayKey(now);
-  if(!s.loginStamps||!Number.isInteger(s.loginStamps.count)||s.loginStamps.count<0||s.loginStamps.count>7)s.loginStamps={count:0,lastDay:''};
-  const card=s.loginStamps;
-  if(card.lastDay&&card.lastDay>=today)return {claimed:false,count:card.count,fragments:0,points:0};
-  card.count=card.count===7?1:card.count+1;card.lastDay=today;
-  const fragments=card.count===3?10:0,points=card.count===7?100:0;
-  s.fragments+=fragments;s.points+=points;if(fragments)s.fragmentExchangeUnlocked=true;
-  return {claimed:true,count:card.count,fragments,points};
- }
- return {loginStamp,DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,mastery,rarity,draw,exchange,exchangeRarity};
+ return {DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,mastery,rarity,draw,exchange,exchangeRarity};
 });
 
 
