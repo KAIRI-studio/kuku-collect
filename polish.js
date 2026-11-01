@@ -61,6 +61,7 @@
  const stampCapsule='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14" fill="#eac77c" stroke="#89613b" stroke-width="2.5"/><path d="M6 20a14 14 0 0 1 28 0Z" fill="#accddc" stroke="#89613b" stroke-width="2.5"/><circle cx="20" cy="20" r="4" fill="#fff7e2" stroke="#89613b" stroke-width="2"/></svg>';
  function renderLoginCard(result){
   let card=$('loginStampCard');if(!card){card=document.createElement('div');card.id='loginStampCard';$('home').append(card)}
+  const guide=$('homeRecommendation');if(guide)card.style.top=(guide.offsetTop+guide.offsetHeight+14)+'px';
   const count=(state.loginStamps||{}).count||0;
   card.innerHTML='<div class="stamp-card-heading"><span>まいにちスタンプ</span><b>'+count+'/7</b></div><div class="stamp-grid">'+Array.from({length:7},(_,i)=>{
    const n=i+1,done=n<=count,reward=n===3?'<img src="./assets/fragment-original.webp" alt="かけら10こ">':n===7?stampCapsule:'';
