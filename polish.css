@@ -156,3 +156,13 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 #revealDescription{white-space:pre-line}
 @media(max-height:620px){.fragment-exchange{padding:11px}.exchange-row-title{font-size:11px}.exchange-row-title small{font-size:10px}.rarity-exchange-button{font-size:12px}}
 
+/* Explanations are optional; primary screens keep short labels and counts. */
+#learn .learn-instruction:empty,#revealDescription:empty,#gachaHint:empty{display:none}
+#danButtons .dan-status:empty{display:none}#danButtons .dan-card{min-height:74px}
+.learning-record{border-top:1px solid #ded1b7;margin-top:15px;padding-top:5px;color:#78664f;font-size:12px}
+.learning-record summary{cursor:pointer;padding:8px 3px;min-height:34px;text-align:center}.learning-record>p{font-size:12px;line-height:1.6;margin:9px 0}
+#homeRecommendation.first-companion .first-path{margin-bottom:0}
+.recall-prompt{min-height:44px}.rarity-exchange-button{min-height:48px}
+@media(max-height:620px){#danButtons .dan-card{min-height:64px}.learning-record{margin-top:10px}}
+
+
