@@ -37,7 +37,7 @@
    b.innerHTML='<strong>'+d+'<small>のだん</small></strong><span class="dan-dots" aria-hidden="true">'+m.items.map(q=>'<i class="dot-'+q.stage+'"></i>').join('')+'</span><small class="dan-status">'+(m.steady===9?'3日せいかい！':m.review?'ふくしゅう '+m.review+'もん':m.started?m.started+' / 9':m.clearedSets?'✓ '+m.clearedSets+' / 3':'')+'</small>';
   }
  }
- function shortTarget(target){return target.kind==='review'?'ふくしゅう':target.label.startsWith('つぎの3つ')?'つぎの3つ':target.d?target.d+'のだん':target.label}
+ function shortTarget(target){return target.kind==='review'?target.label:target.label.startsWith('つぎの3つ')?'つぎの3つ':target.d?target.d+'のだん':target.label}
  function recommendation(){
   renderLearningProgress();
   const target=Rules.next(state),count=Rules.due(state).length;
@@ -117,7 +117,7 @@
   $('resultBreakdown').innerHTML='<div><span>せいかいのポイント</span><b>＋'+sessionPoints+'</b></div>'+(bonus.clearBonus?'<div><span>はじめてクリア！</span><b>＋'+bonus.clearBonus+'</b></div>':'')+(bonus.starterBonus?'<div><span>はじめのぼうけんボーナス！</span><b>＋'+bonus.starterBonus+'</b></div>':'')+'<p>もっているポイント：<strong>'+state.points+' pt</strong></p>';
   const progress=Rules.mastery(state,questions[0].d);$('resultMilestone').textContent=questions[0].d+'のだん：れんしゅう '+progress.started+' / 9 ・ 3日せいかい '+progress.steady+' / 9';
   const actions=$('resultActions');actions.innerHTML='';let primary,secondary;
-  if(sessionWrong.length){primary={label:'ふくしゅう '+sessionWrong.length+'もん',go:()=>startReview(sessionWrong)};secondary=state.points>=100?{label:'ガチャへ',go:()=>show('gacha')}:{label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
+  if(sessionWrong.length){primary={label:'まちがえた '+sessionWrong.length+'もんを ふくしゅう',go:()=>startReview(sessionWrong)};secondary=state.points>=100?{label:'ガチャへ',go:()=>show('gacha')}:{label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
   else if(state.points>=100){primary={label:'ガチャへ',go:()=>show('gacha')};secondary={label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
   else{primary={label:shortTarget(followTarget),go:()=>runTarget(followTarget)};secondary={label:'もういちど',go:()=>quizMode==='review'?startReview(questions):show('learn')}}
   for(const [item,cls]of [[primary,'primary'],[secondary,'secondary']]){const b=document.createElement('button');b.className=cls;b.textContent=item.label+' ▶';b.onclick=item.go;actions.append(b)}
