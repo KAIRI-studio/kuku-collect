@@ -171,3 +171,9 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 
 /* Keep the complete subtitle image visible, including upper accents. */
 .title-subtitle{height:auto;overflow:visible;margin-top:-20px}.title-subtitle img{position:static;transform:none;width:100%;height:auto}
+
+/* Animate the existing illustrated star independently of the lettering. */
+.title-subtitle .subtitle-letters{clip-path:polygon(0 0,56% 0,56% 42%,63% 42%,63% 0,100% 0,100% 100%,0 100%)}
+.title-subtitle .subtitle-star{position:absolute;inset:0;width:100%;height:auto;clip-path:inset(0 37% 58% 56%);transform-origin:60% 37%;animation:subtitle-star-wiggle 3.8s ease-in-out infinite;will-change:transform}
+@keyframes subtitle-star-wiggle{0%,100%{transform:rotate(-5deg) scale(.96)}45%{transform:rotate(7deg) scale(1.08)}65%{transform:rotate(-2deg) scale(1.02)}}
+@media(prefers-reduced-motion:reduce){.title-subtitle .subtitle-star{animation:none;transform:none}}
