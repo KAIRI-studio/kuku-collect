@@ -14,6 +14,7 @@ test('launch, first learning reward, single-charge gacha and room placement exec
  sandbox.splitPhrase=(d,n)=>[d+'-'+n,String(d*n)];sandbox.phrase=(d,n)=>d+'-'+n+'='+d*n;
  sandbox.show=id=>{for(const s of ['home','select','learn','quiz','result','gacha','collection'])$(s).classList.toggle('hidden',s!==id);if(id==='home')sandbox.home();if(id==='learn')sandbox.renderLearn();if(id==='gacha')sandbox.renderGacha()};sandbox.window=sandbox;
  function advance(ms){const end=clock+ms;for(;;){const pair=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!pair)break;timers.delete(pair[0]);clock=pair[1].at;pair[1].fn()}clock=end}
+ sandbox.setCollectionView=view=>{sandbox.collectionView=view;sandbox.collection()};
  vm.createContext(sandbox);vm.runInContext(fs.readFileSync('polish.js','utf8'),sandbox);
  assert.equal($('brandScreen').hidden,true);assert.equal($('titleScreen').hidden,false);assert.equal(app.inert,true);
  sandbox.enterGame();advance(1000);assert.match($('homeRecommendation').innerHTML,/さいしょのなかま/);assert.equal(app.inert,false);assert.equal($('titleScreen').hidden,true);
