@@ -4,7 +4,7 @@
  const Rules=window.KukuRules;Rules.init(state);
  const base={home:window.home,show:window.show,learn:window.renderLearn,collection:window.collection,gacha:window.renderGacha};
  let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],speechTimer=0,revealPreviousFocus=null;
- let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null,pointTimer=0;
+ let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null,pointTimer=0,fragmentTimer=0;
  let recallMode=false,recallIndex=0,recallKey='';
  const app=document.querySelector('.app');
  const audioIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h6l7-6v20l-7-6H5z" fill="currentColor"/><path d="M22 11q5 5 0 10M26 7q8 9 0 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
@@ -49,14 +49,14 @@
   const action=canDraw?"show('gacha')":waiting?'openRoomPicker()':'startRecommended()';
   h.innerHTML='<div class="recommend-top"><span>'+title+'</span></div><button class="recommend-go" onclick="'+action+'">'+label+' <span aria-hidden="true">▶</span></button>'+(first?'<p class="first-path">① 九九　→　② ガチャ　→　③ おへや</p><p class="first-hint">'+(canDraw?'ポイントがたまったよ。なかまにあいにいこう！':!state.starterBonusClaimed?'はじめての全問せいかいで、ガチャ1かい分！':'九九で100ポイントためて、なかまにあおう！')+'</p>':'');
   let welcome=$('roomWelcome');if(!welcome){welcome=document.createElement('div');welcome.id='roomWelcome';welcome.setAttribute('aria-hidden','true');$('home').append(welcome)}
-  welcome.hidden=!!state.favorites.length;
-  welcome.innerHTML='<svg viewBox="0 0 72 84" aria-hidden="true"><path d="M12 40a24 24 0 0 1 48 0v3H12Z" fill="#cee1e5" stroke="#715333" stroke-width="3"/><path d="M12 43h48v3a24 24 0 0 1-48 0Z" fill="#e9c878" stroke="#715333" stroke-width="3"/><path d="M23 27q3-7 11-9" fill="none" stroke="#fff9ec" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="43" r="6" fill="#fff9ec" stroke="#715333" stroke-width="2"/></svg><p>'+ (first?'どんななかまが くるかな？':'なかまが まっているよ')+'</p>';
+  welcome.hidden=!!state.favorites.length||!first;
+  welcome.innerHTML='<svg viewBox="0 0 72 84" aria-hidden="true"><path d="M12 40a24 24 0 0 1 48 0v3H12Z" fill="#cee1e5" stroke="#715333" stroke-width="3"/><path d="M12 43h48v3a24 24 0 0 1-48 0Z" fill="#e9c878" stroke="#715333" stroke-width="3"/><path d="M23 27q3-7 11-9" fill="none" stroke="#fff9ec" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="43" r="6" fill="#fff9ec" stroke="#715333" stroke-width="2"/></svg><p>どんななかまが くるかな？</p>';
 
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
   card.innerHTML='<button class="primary" onclick="startRecommended()">'+target.label+' ▶</button><p>はじめてクリアで ＋30ポイント！</p>';
  }
  window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();if(launchOpen)stopRoomWalk()};
- window.show=function(id){clearChoiceSpeech();clearTimeout(pointTimer);$('pointGain').hidden=true;if(id!=='quiz'){$('feedback').classList.remove('is-correct','is-incorrect');document.querySelectorAll('#choices button').forEach(b=>b.classList.remove('choice-correct','choice-incorrect'))}base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
+ window.show=function(id){clearFragmentNotice();clearChoiceSpeech();clearTimeout(pointTimer);$('pointGain').hidden=true;if(id!=='quiz'){$('feedback').classList.remove('is-correct','is-incorrect');document.querySelectorAll('#choices button').forEach(b=>b.classList.remove('choice-correct','choice-incorrect'))}base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
  function renderRecall(){
   const n=group*3+recallIndex+1,parts=splitPhrase(dan,n);
   $('recallCounter').textContent=(recallIndex+1)+' / 3 もん';$('recallPrompt').textContent=parts[0]+' ○○';$('recallEquation').textContent=dan+' × '+n+' ＝ □';
@@ -127,12 +127,12 @@
  window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'ポイントで ひけるよ':'同じレアなら、まだいない子を優先するよ。';$('gachaFragments').innerHTML=fragmentBar()};
  window.collection=function(){
   base.collection();let wallet=$('collectionWallet');if(!wallet){wallet=document.createElement('div');wallet.id='collectionWallet';$('collectionCount').after(wallet)}
-  wallet.innerHTML='<div class="fragment-balance">'+fragmentBar()+'</div><button class="text-button" onclick="setCollectionView(\'all\')">かけらで むかえる ▶</button>';
+  wallet.innerHTML='<div class="fragment-balance">'+fragmentBar()+'</div><button class="text-button" onclick="openFragmentCollection()">かけらで むかえる ▶</button>';
   for(const card of $('monsters').querySelectorAll('.friend-card')){
    const i=Number(card.dataset.character);if(!Number.isInteger(i)||state.owned.includes(i))continue;
    const cost=Rules.COSTS[rarityCodes[i]],enough=state.fragments>=cost;
    card.classList.add('locked-card');card.innerHTML=rarityTag(i)+'<span class="locked-label">まだ であっていない</span><div class="locked-art" aria-hidden="true"><span class="unknown-companion">？</span></div><p>？？？</p>';
-   const b=document.createElement('button');b.className='exchange-button';b.disabled=!enough;b.innerHTML='かけら '+cost+'こで むかえる'+(!enough?'<br><small>あと '+(cost-state.fragments)+'こ</small>':'');b.onclick=()=>exchangeCharacter(i);card.append(b);
+   const b=document.createElement('button');b.className='exchange-button';b.classList.toggle('is-unaffordable',!enough);b.innerHTML='かけら '+cost+'こで むかえる'+(!enough?'<br><small>あと '+(cost-state.fragments)+'こ</small>':'');b.onclick=()=>exchangeCharacter(i,b);card.append(b);
   }
  };
  function clearRevealTimers(){for(const t of revealTimers)clearTimeout(t);revealTimers=[];cancelAnimationFrame(revealFrame);revealFrame=0}
@@ -156,7 +156,15 @@
   effectSound('capsule');later(()=>view.classList.add('is-opening'),800);later(finishReveal,1350);renderGacha();
  }
  window.drawGacha=function(){if(gachaBusy)return;const result=Rules.draw(state,rarityCodes);if(!result)return;save();updatePoints();reveal(result)};
- window.exchangeCharacter=function(i){if(gachaBusy)return;const result=Rules.exchange(state,i,rarityCodes);if(!result)return;save();reveal(result)};
+ function clearFragmentNotice(){clearTimeout(fragmentTimer);$('fragmentNotice').hidden=true}
+ function fragmentNotice(message){clearTimeout(fragmentTimer);$('fragmentNotice').textContent=message;$('fragmentNotice').hidden=false;fragmentTimer=setTimeout(()=>{$('fragmentNotice').hidden=true},3800)}
+ window.openFragmentCollection=function(){setCollectionView('all');if(state.fragments===0)fragmentNotice('かけらを ためよう！\n同じなかまがガチャででると、かけらがもらえるよ。')};
+ window.exchangeCharacter=function(i,button){
+  if(gachaBusy||!Number.isInteger(i)||i<0||i>=rarityCodes.length||state.owned.includes(i))return;
+  const cost=Rules.COSTS[rarityCodes[i]];if(!cost)return;
+  if(state.fragments<cost){fragmentNotice('かけらが あと'+(cost-state.fragments)+'こ 必要だよ！\n同じなかまがガチャででると、かけらがもらえるよ。');if(button&&button.animate&&(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches))button.animate([{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],{duration:220});return}
+  const result=Rules.exchange(state,i,rarityCodes);if(!result)return;clearFragmentNotice();save();reveal(result)
+ };
  window.skipGachaReveal=function(){finishReveal()};
  window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
  window.openHowTo=function(){$('howToOverlay').hidden=false;$('titleScreen').inert=true;$('howToClose').focus()};
