@@ -101,7 +101,7 @@
   for(const card of $('monsters').querySelectorAll('.friend-card')){
    const i=Number(card.dataset.character);if(!Number.isInteger(i)||state.owned.includes(i))continue;
    const cost=Rules.COSTS[rarityCodes[i]],enough=state.fragments>=cost;
-   card.classList.add('locked-card');card.innerHTML=rarityTag(i)+'<span class="locked-label">まだ であっていない</span><div class="locked-art" aria-hidden="true">'+character(i)+'</div><p>'+species[i]+'</p>';
+   card.classList.add('locked-card');card.innerHTML=rarityTag(i)+'<span class="locked-label">まだ であっていない</span><div class="locked-art" aria-hidden="true"><span class="unknown-companion">？</span></div><p>？？？</p>';
    const b=document.createElement('button');b.className='exchange-button';b.disabled=!enough;b.innerHTML='かけら '+cost+'こで むかえる'+(!enough?'<br><small>あと '+(cost-state.fragments)+'こ</small>':'');b.onclick=()=>exchangeCharacter(i);card.append(b);
   }
  };
