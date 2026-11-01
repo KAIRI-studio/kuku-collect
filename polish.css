@@ -142,3 +142,17 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 
 
 .fragment-notice{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 32px);max-width:420px;z-index:1800;padding:15px 17px;border:2px solid #ad8b4d;border-radius:18px;background:#fff3cf;color:#65482d;box-shadow:0 4px 0 #bba06c55;font-size:13px;font-weight:700;line-height:1.7;white-space:pre-line;pointer-events:none}.friend-card .exchange-button.is-unaffordable{background:#eee6d5;color:#79684d;border-color:#b6a582}.friend-card .exchange-button.is-unaffordable small{color:#8c623f}@media(max-height:740px){.fragment-notice{bottom:calc(85px + env(safe-area-inset-bottom));padding:12px 14px;font-size:12px}}@media(max-height:610px){.fragment-notice{bottom:calc(75px + env(safe-area-inset-bottom))}}
+
+.fragment-exchange{border:2px solid #b9c9bf;background:#f0f5ed;border-radius:18px;padding:14px;margin:10px 0 14px;scroll-margin:10px}
+#collection .fragment-exchange h3{font-size:17px;margin:0 0 7px;color:#536b59;letter-spacing:0}
+.fragment-exchange>p{font-size:12px;line-height:1.7;color:#65735f;margin:0 0 12px}
+#rarityExchangeList{display:grid;grid-template-columns:1fr;gap:11px}
+.rarity-exchange-row{padding:10px;border:2px solid #9faa86;border-radius:14px;background:#eaf0df}
+.rarity-exchange-row.exchange-lr{border-color:#bd8a7d;background:#f7e0d7}.rarity-exchange-row.exchange-sr{border-color:#b7a164;background:#f7edcd}.rarity-exchange-row.exchange-r{border-color:#95aab8;background:#e7eff3}
+.exchange-row-title{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;color:#67533c;margin-bottom:8px}.exchange-row-title small{font-size:10px;white-space:nowrap}
+.rarity-exchange-button{width:100%;min-height:55px;background:#fff9e8;border:2px solid #b29b73;border-radius:12px;padding:8px 4px;font-size:13px;line-height:1.5}
+.rarity-exchange-button small{font-size:12px;color:#756144}.rarity-exchange-button.is-unaffordable{background:#f1e9d7;color:#79684d}.rarity-exchange-button:disabled{opacity:1;background:#e3e9dc;color:#66755b;border-color:#acb79a;font-size:12px}
+.friend-card.locked-card .locked-hint{display:flex;align-items:center;justify-content:center;min-height:44px;margin:0 auto;padding:6px 3px;font-size:11px;color:#78674e;font-weight:500}
+#revealDescription{white-space:pre-line}
+@media(max-height:620px){.fragment-exchange{padding:11px}.exchange-row-title{font-size:11px}.exchange-row-title small{font-size:10px}.rarity-exchange-button{font-size:12px}}
+

@@ -9,6 +9,8 @@
   if(!s.dailyPractice||s.dailyPractice.date!==dayKey(now))s.dailyPractice={date:dayKey(now),correct:{}};
   if(!s.dailyPractice.correct||typeof s.dailyPractice.correct!=='object')s.dailyPractice.correct={};
   if(!Number.isFinite(s.fragments)||s.fragments<0)s.fragments=0;
+  if(typeof s.fragmentExchangeUnlocked!=='boolean')s.fragmentExchangeUnlocked=!!(s.fragments>0||(s.lastDraw&&s.lastDraw.source==='exchange')||(s.lastDraw&&s.lastDraw.fragments>0));
+  if(s.fragments>0)s.fragmentExchangeUnlocked=true;
   if(!Number.isInteger(s.drawCount)||s.drawCount<0)s.drawCount=0;
   if(typeof s.starterBonusClaimed!=='boolean')s.starterBonusClaimed=!!((s.owned||[]).length||Object.keys(s.clears||{}).length);
   if(!s.settings||typeof s.settings!=='object')s.settings={};
@@ -63,14 +65,22 @@
   const code=rarity(random()),all=codes.map((r,i)=>r===code?i:-1).filter(i=>i>=0),unowned=all.filter(i=>!s.owned.includes(i)),pool=unowned.length?unowned:all;
   if(!pool.length)throw new Error('Missing rarity pool');
   const i=pool[Math.min(pool.length-1,Math.floor(Math.max(0,random())*pool.length))],fresh=!s.owned.includes(i),fragments=fresh?0:DUPLICATES[code];
-  s.points-=100;s.drawCount++;if(fresh)s.owned.push(i);else s.fragments+=fragments;
-  const result={i,rarity:code,fresh,fragments,source:'gacha',at:now};s.lastDraw=result;return result;
+  const firstFragments=!fresh&&!s.fragmentExchangeUnlocked;
+  s.points-=100;s.drawCount++;if(fresh)s.owned.push(i);else{s.fragments+=fragments;s.fragmentExchangeUnlocked=true}
+  const result={i,rarity:code,fresh,fragments,firstFragments,source:'gacha',at:now};s.lastDraw=result;return result;
  }
  function exchange(s,i,codes,now=Date.now()){
   init(s,now);if(!Number.isInteger(i)||i<0||i>=codes.length||s.owned.includes(i))return null;
   const cost=COSTS[codes[i]];if(!cost||s.fragments<cost)return null;
   s.fragments-=cost;s.owned.push(i);const result={i,rarity:codes[i],fresh:true,fragments:0,source:'exchange',cost,at:now};s.lastDraw=result;return result;
  }
- return {DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,mastery,rarity,draw,exchange};
+ function exchangeRarity(s,code,codes,random=Math.random,now=Date.now()){
+  init(s,now);if(!Object.prototype.hasOwnProperty.call(COSTS,code))return null;const cost=COSTS[code];if(s.fragments<cost)return null;
+  const pool=codes.map((r,i)=>r===code&&!s.owned.includes(i)?i:-1).filter(i=>i>=0);if(!pool.length)return null;
+  const roll=Number(random());if(!Number.isFinite(roll))return null;
+  const i=pool[Math.floor(Math.min(.999999999,Math.max(0,roll))*pool.length)];return exchange(s,i,codes,now);
+ }
+ return {DAY,RATES,DUPLICATES,COSTS,dayKey,init,rewardFor,answer,complete,due,next,mastery,rarity,draw,exchange,exchangeRarity};
 });
+
 
