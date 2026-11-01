@@ -56,7 +56,23 @@
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
   card.innerHTML='<button class="primary" onclick="startRecommended()">'+shortTarget(target)+' ▶</button>';
  }
- window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();if(launchOpen)stopRoomWalk()};
+
+ const stampStar='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 5 4.5 9 10 1.5-7.3 7 1.8 10L20 28l-9 4.5 1.8-10-7.3-7 10-1.5Z" fill="#d7a14f" stroke="#89613b" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+ const stampCapsule='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14" fill="#eac77c" stroke="#89613b" stroke-width="2.5"/><path d="M6 20a14 14 0 0 1 28 0Z" fill="#accddc" stroke="#89613b" stroke-width="2.5"/><circle cx="20" cy="20" r="4" fill="#fff7e2" stroke="#89613b" stroke-width="2"/></svg>';
+ function renderLoginCard(result){
+  let card=$('loginStampCard');if(!card){card=document.createElement('div');card.id='loginStampCard';$('home').append(card)}
+  const count=(state.loginStamps||{}).count||0;
+  card.innerHTML='<div class="stamp-card-heading"><span>まいにちスタンプ</span><b>'+count+'/7</b></div><div class="stamp-grid">'+Array.from({length:7},(_,i)=>{
+   const n=i+1,done=n<=count,reward=n===3?'<img src="./assets/fragment-original.webp" alt="かけら10こ">':n===7?stampCapsule:'';
+   return '<div class="stamp-cell '+(done?'stamped ':'')+(result&&result.claimed&&n===count?'stamp-new':'')+'" aria-label="'+n+'日目'+(done?'、スタンプあり':'')+(n===3?'、かけら10こ':n===7?'、100ポイント':'')+'"><small>'+n+'</small>'+(done?stampStar:reward||'<i></i>')+'</div>'
+  }).join('')+'</div><p class="stamp-note" role="status">'+(result&&result.fragments?'かけら ＋10こ！':result&&result.points?'ガチャ1回ぶん ＋100pt！':count===7?'7こ たまったね！':'また あした！')+'</p>';
+ }
+ function claimLoginStamp(){
+  if(launchOpen)return;
+  const result=Rules.loginStamp(state);if(result.claimed)save();renderLoginCard(result);
+  if(result.claimed){effectSound('tap');if(result.fragments||result.points)base.home(); }
+ }
+ window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();renderLoginCard();if(launchOpen)stopRoomWalk()};
  window.show=function(id){clearFragmentNotice();clearChoiceSpeech();clearTimeout(pointTimer);$('pointGain').hidden=true;if(id!=='quiz'){$('feedback').classList.remove('is-correct','is-incorrect');document.querySelectorAll('#choices button').forEach(b=>b.classList.remove('choice-correct','choice-incorrect'))}base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
  function renderRecall(){
   const n=group*3+recallIndex+1,parts=splitPhrase(dan,n);
@@ -186,14 +202,14 @@
  window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleScreen').focus()};
  window.enterGame=function(){
   if(launchBusy)return;launchBusy=true;effectSound('start');const shutter=$('sceneShutter');shutter.hidden=false;requestAnimationFrame(()=>shutter.classList.add('closed'));
-  setTimeout(()=>{launchOpen=false;$('titleScreen').hidden=true;$('brandScreen').hidden=true;document.body.classList.remove('booting');lockApp(false);show('home')},260);
+  setTimeout(()=>{launchOpen=false;$('titleScreen').hidden=true;$('brandScreen').hidden=true;document.body.classList.remove('booting');lockApp(false);show('home');claimLoginStamp()},260);
   setTimeout(()=>shutter.classList.remove('closed'),340);setTimeout(()=>{shutter.hidden=true;launchBusy=false;$('home').focus()},620);
  };
  const sound=document.createElement('button');sound.className='sound-toggle';sound.dataset.effectsToggle='';sound.onclick=toggleEffects;document.querySelector('.app>header').append(sound);updateSoundButtons();
  $('quiz').querySelector(':scope >button').onclick=()=>{const q=questions[index];if(q){dan=q.d;group=Math.floor((q.n-1)/3)}show('learn')};
  document.addEventListener('keydown',event=>{if(event.key!=='Escape')return;if(!$('howToOverlay').hidden)closeHowTo();else if(!$('gachaReveal').hidden)closeGachaReveal()});
  document.addEventListener('keydown',event=>{if(event.key!=='Tab')return;const modal=!$('howToOverlay').hidden?$('howToOverlay'):!$('gachaReveal').hidden?$('gachaReveal'):null;if(!modal)return;const buttons=[...modal.querySelectorAll('button:not([disabled])')].filter(b=>b.getClientRects().length);if(!buttons.length)return;const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}});
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&audio)audio.suspend().catch(()=>{});else if(audio&&state.settings.effects)audio.resume().catch(()=>{})});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&audio)audio.suspend().catch(()=>{});else {if(!launchOpen)claimLoginStamp();if(audio&&state.settings.effects)audio.resume().catch(()=>{})}});
  home();stopRoomWalk();lockApp(true);let brandTimer=0;
  if(query.get('screen-review')==='title')showTitleScreen();else if(query.get('screen-review')!=='brand')brandTimer=setTimeout(showTitleScreen,1700);
 })();
