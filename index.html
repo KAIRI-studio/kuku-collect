@@ -388,7 +388,7 @@ function collection(){
    if(state.owned.includes(i)){
     const inRoom=state.favorites.includes(i);d.classList.toggle('in-room',inRoom);
     d.innerHTML=(inRoom?'<span class="room-badge">✓ おへや</span>':'')+rarityTag(i)+character(i)+'<p>'+species[i]+'</p>';
-    const b=document.createElement('button');b.textContent=inRoom?'はずす':'おく';b.setAttribute('aria-label',species[i]+'を'+(inRoom?'おへやからはずす':'おへやにおく'));b.setAttribute('aria-pressed',String(inRoom));
+    const b=document.createElement('button');b.textContent=inRoom?'はずす':'へやにおく';b.setAttribute('aria-label',species[i]+'を'+(inRoom?'おへやからはずす':'おへやにおく'));b.setAttribute('aria-pressed',String(inRoom));
     if(!inRoom&&state.favorites.length>=HOME_LIMIT){b.disabled=true;b.textContent='いっぱい'}b.onclick=()=>toggleFavorite(i);d.append(b);
    }else d.innerHTML=rarityTag(i)+'<div class="unknown">？</div><p class="small muted">まだであっていない</p>';
    list.append(d);shown++;
