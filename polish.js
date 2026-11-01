@@ -24,11 +24,8 @@
  function clearChoiceSpeech(){clearTimeout(speechTimer);speechTimer=0}
  function runTarget(target){target=target||Rules.next(state);if(target.kind==='review')startReview(target.items);else{dan=target.d;group=target.g;show('learn')}}
  window.startRecommended=function(){runTarget(Rules.next(state))};
- window.returnToTitle=function(){if(gachaBusy)return;stopRoomWalk();stopSpeech();clearChoiceSpeech();launchOpen=true;lockApp(true);document.body.classList.add('booting');$('titleScreen').hidden=false;$('titleScreen').focus()};
- function renderJourney(){
-  const all=Rules.mastery(state);let board=$('homeJourney');
-  if(!board){board=document.createElement('div');board.id='homeJourney';$('home').append(board)}
-  board.innerHTML='<div class="journey-heading"><span>九九のきろく</span><strong>'+all.steady+'<small> / 81</small></strong></div><div class="journey-track" role="progressbar" aria-label="別の日に3回せいかいした九九" aria-valuemin="0" aria-valuemax="81" aria-valuenow="'+all.steady+'"><span style="width:'+all.steady/81*100+'%"></span></div><div class="journey-caption"><span>3日せいかい</span><span>なかま '+state.owned.length+' / '+species.length+'</span></div>';
+ function renderLearningProgress(){
+  const all=Rules.mastery(state);
   $('totalProgress').textContent='クリア '+all.clearedSets+' / 27 セット ・ 3日せいかい '+all.steady+' / 81';
   const buttons=$('danButtons').children;
   for(let i=0;i<buttons.length;i++){
@@ -39,10 +36,10 @@
   }
  }
  function recommendation(){
-  renderJourney();
+  renderLearningProgress();
   const target=Rules.next(state),count=Rules.due(state).length;
   let h=$('homeRecommendation');if(!h){h=document.createElement('div');h.id='homeRecommendation';$('home').append(h)}
-  h.innerHTML='<div class="recommend-top"><span>きょうのおすすめ'+(count?' ・ ふくしゅう '+count+'もん':'')+'</span><button class="text-button" onclick="returnToTitle()">タイトル</button></div><button class="recommend-go" onclick="startRecommended()">'+target.label+' <span aria-hidden="true">▶</span></button>';
+  h.innerHTML='<div class="recommend-top"><span>きょうのおすすめ'+(count?' ・ ふくしゅう '+count+'もん':'')+'</span></div><button class="recommend-go" onclick="startRecommended()">'+target.label+' <span aria-hidden="true">▶</span></button>';
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
   card.innerHTML='<button class="primary" onclick="startRecommended()">'+target.label+' ▶</button><p>はじめてクリアで ＋30ポイント！</p>';
  }
