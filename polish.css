@@ -138,4 +138,5 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 @media(prefers-reduced-motion:reduce){button:not(.brand-screen){transition:none}.point-gain,#feedback.is-correct,#feedback.is-incorrect{animation:none}}
 @media(max-height:740px){.app>#learn:not(.hidden){gap:3px}#learn:not(.is-recall) .learn-instruction{display:none}#learn .learn-pages button{min-height:32px;padding:5px 4px}}
 @media(max-height:620px){#learn .line{min-height:40px;padding:3px 8px}#learn .reading-copy span{font-size:14px;line-height:17px}#learn #lines{gap:4px}.step-connector{display:none}#learn .step-action{min-height:38px;padding:3px 6px}#learn .step-copy small{font-size:10px}#learn .step-copy strong{font-size:14px}#learn .step-number{width:27px;height:27px;font-size:20px;line-height:23px}#learn .point-explanation b{font-size:16px}#learn .point-explanation{margin-top:5px}.recall-card{padding:8px}.recall-counter{margin-bottom:6px}.recall-equation{margin-bottom:8px}.recall-card button{min-height:38px;padding:7px 6px}}
+@media(min-height:621px) and (max-height:740px){.step-connector{display:none}#learn .learn-sounds{padding:7px}.learn-mode button{min-height:32px}}
 
