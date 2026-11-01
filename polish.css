@@ -166,3 +166,5 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 @media(max-height:620px){#danButtons .dan-card{min-height:64px}.learning-record{margin-top:10px}}
 
 
+
+.title-subtitle{position:absolute;top:100%;left:5%;width:90%;height:44px;overflow:hidden;margin-top:8px;pointer-events:none}.title-subtitle img{display:block;width:100%;height:auto;position:absolute;top:50%;transform:translateY(-50%)}
