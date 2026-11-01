@@ -182,7 +182,7 @@
   const result=Rules.exchangeRarity(state,code,rarityCodes);if(!result)return;clearFragmentNotice();save();reveal(result);
  };
  window.skipGachaReveal=function(){finishReveal()};
- window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
+ window.closeGachaReveal=function(){if(!revealDone){finishReveal();return}clearRevealTimers();$('gachaReveal').hidden=true;gachaBusy=false;lockApp(launchOpen);renderGacha();if(!$('collection').classList.contains('hidden')){collection();$('collectionWallet').querySelector('button').focus()}else if(revealPreviousFocus&&revealPreviousFocus.isConnected)revealPreviousFocus.focus();else $('drawButton').focus()};
  window.openHowTo=function(){$('howToOverlay').hidden=false;$('titleScreen').inert=true;$('howToClose').focus()};
  window.closeHowTo=function(){$('howToOverlay').hidden=true;$('titleScreen').inert=false;$('titleStart').focus()};
  window.showTitleScreen=function(){clearTimeout(brandTimer);$('brandScreen').hidden=true;$('titleScreen').hidden=false;$('titleScreen').focus()};
