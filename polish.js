@@ -4,7 +4,8 @@
  const Rules=window.KukuRules;Rules.init(state);
  const base={home:window.home,show:window.show,learn:window.renderLearn,collection:window.collection,gacha:window.renderGacha};
  let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],speechTimer=0,revealPreviousFocus=null;
- let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null;
+ let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null,pointTimer=0;
+ let recallMode=false,recallIndex=0,recallKey='';
  const app=document.querySelector('.app');
  const audioIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h6l7-6v20l-7-6H5z" fill="currentColor"/><path d="M22 11q5 5 0 10M26 7q8 9 0 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
  const shardIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 10 10-4 12-6 5-6-5-4-12Z" fill="#a6cbd6" stroke="#648590" stroke-width="2"/><path d="m16 3 4 10-4 17-4-17Zm-10 10h20" fill="none" stroke="#eff9f4" stroke-width="1.5"/></svg>';
@@ -39,13 +40,39 @@
   renderLearningProgress();
   const target=Rules.next(state),count=Rules.due(state).length;
   let h=$('homeRecommendation');if(!h){h=document.createElement('div');h.id='homeRecommendation';$('home').append(h)}
-  h.innerHTML='<div class="recommend-top"><span>きょうのおすすめ'+(count?' ・ ふくしゅう '+count+'もん':'')+'</span></div><button class="recommend-go" onclick="startRecommended()">'+target.label+' <span aria-hidden="true">▶</span></button>';
+  const first=!state.owned.length,waiting=state.owned.length>0&&!state.favorites.length;
+  const canDraw=first&&state.points>=100;
+  h.classList.toggle('first-companion',first);h.classList.toggle('waiting-room',waiting);
+  const title=first?'さいしょのなかまを むかえよう':waiting?'おへやに なかまをよぼう':'きょうのおすすめ'+(count?' ・ ふくしゅう '+count+'もん':'');
+  const label=canDraw?'さいしょのガチャをひこう':waiting?'なかまを おへやにおこう':target.label;
+  const action=canDraw?"show('gacha')":waiting?"show('collection')":'startRecommended()';
+  h.innerHTML='<div class="recommend-top"><span>'+title+'</span></div><button class="recommend-go" onclick="'+action+'">'+label+' <span aria-hidden="true">▶</span></button>'+(first?'<p class="first-path">① 九九　→　② ガチャ　→　③ おへや</p><p class="first-hint">'+(canDraw?'ポイントがたまったよ。なかまにあいにいこう！':!state.starterBonusClaimed?'はじめての全問せいかいで、ガチャ1かい分！':'九九で100ポイントためて、なかまにあおう！')+'</p>':'');
+  let welcome=$('roomWelcome');if(!welcome){welcome=document.createElement('div');welcome.id='roomWelcome';welcome.setAttribute('aria-hidden','true');$('home').append(welcome)}
+  welcome.hidden=!!state.favorites.length;
+  welcome.innerHTML='<svg viewBox="0 0 72 84" aria-hidden="true"><path d="M12 40a24 24 0 0 1 48 0v3H12Z" fill="#cee1e5" stroke="#715333" stroke-width="3"/><path d="M12 43h48v3a24 24 0 0 1-48 0Z" fill="#e9c878" stroke="#715333" stroke-width="3"/><path d="M23 27q3-7 11-9" fill="none" stroke="#fff9ec" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="43" r="6" fill="#fff9ec" stroke="#715333" stroke-width="2"/></svg><p>'+ (first?'どんななかまが くるかな？':'なかまが まっているよ')+'</p>';
+
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
   card.innerHTML='<button class="primary" onclick="startRecommended()">'+target.label+' ▶</button><p>はじめてクリアで ＋30ポイント！</p>';
  }
  window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();if(launchOpen)stopRoomWalk()};
- window.show=function(id){clearChoiceSpeech();base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
- window.renderLearn=function(){base.learn();const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう はじめてなら <b>10</b>ポイント！';$('nextGachaHint').textContent=(state.points>=100?'ガチャがひけるよ！':'あと'+(100-state.points)+'ポイントで ガチャ1かい')+' ・ はじめてクリア ＋30pt';};
+ window.show=function(id){clearChoiceSpeech();clearTimeout(pointTimer);$('pointGain').hidden=true;base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
+ function renderRecall(){
+  const n=group*3+recallIndex+1,parts=splitPhrase(dan,n);
+  $('recallCounter').textContent=(recallIndex+1)+' / 3 もん';$('recallPrompt').textContent=parts[0]+' ○○';$('recallEquation').textContent=dan+' × '+n+' ＝ □';
+  $('recallReveal').hidden=false;$('recallNext').hidden=true;$('recallNext').textContent=recallIndex<2?'つぎの九九へ ▶':'もういちど この3つ';
+ }
+ window.setLearnMode=function(hiddenAnswer){stopSpeech();clearChoiceSpeech();recallMode=!!hiddenAnswer;recallIndex=0;renderLearn()};
+ window.revealRecall=function(){if(!recallMode||$('recallReveal').hidden)return;const n=group*3+recallIndex+1;$('recallPrompt').textContent=phrase(dan,n);$('recallEquation').textContent=dan+' × '+n+' ＝ '+dan*n;$('recallReveal').hidden=true;$('recallNext').hidden=false};
+ window.nextRecall=function(){if(!recallMode||!$('recallReveal').hidden)return;recallIndex=(recallIndex+1)%3;renderRecall()};
+ window.renderLearn=function(){
+  base.learn();const key=dan+'-'+group;if(key!==recallKey){recallKey=key;recallIndex=0}
+  $('learn').classList.toggle('is-recall',recallMode);$('readModeButton').setAttribute('aria-pressed',String(!recallMode));$('recallModeButton').setAttribute('aria-pressed',String(recallMode));
+  $('recallCard').hidden=!recallMode;$('lines').hidden=recallMode;
+  $('learn').querySelector('.learn-instruction').textContent=recallMode?'こたえをみるまえに、声にだしてみよう。':'いっしょに声にだして、おぼえよう！';
+  if(recallMode){$('lines').innerHTML='';renderRecall()}
+  const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう はじめてなら <b>10</b>ポイント！';$('nextGachaHint').textContent=(state.points>=100?'ガチャがひけるよ！':'あと'+(100-state.points)+'ポイントで ガチャ1かい')+' ・ はじめてクリア ＋30pt';
+ };
+
  function prepareQuiz(items,mode){
   clearChoiceSpeech();stopSpeech();quizMode=mode;questions=items;index=0;correct=0;sessionPoints=0;sessionWrong=[];show('quiz');renderQuestion();
  }
@@ -56,7 +83,7 @@
   if(!list.length){runTarget(Rules.next(state));return}prepareQuiz(list,'review');
  };
  window.renderQuestion=function(){
-  clearChoiceSpeech();stopSpeech();answered=false;const q=questions[index],parts=splitPhrase(q.d,q.n);$('next').classList.add('hidden');$('feedback').textContent='';
+  clearChoiceSpeech();stopSpeech();answered=false;const q=questions[index],parts=splitPhrase(q.d,q.n);$('next').classList.add('hidden');$('feedback').textContent='';$('feedback').classList.remove('is-correct','is-incorrect');
   $('question').textContent=parts[0]+' ○○';$('quizEquation').textContent=q.d+' × '+q.n+' ＝ □';$('quizProgress').textContent=(quizMode==='review'?'ふくしゅう':q.d+'のだん')+'　'+(index+1)+' / '+questions.length;$('bar').style.width=(index/questions.length*100)+'%';
   $('quiz').querySelector('.quiz-reward strong').textContent='せいかいで '+Rules.rewardFor(state,q,quizMode==='review')+'ポイント！';
   const answers=[parts[1]],candidates=[...new Set(Array.from({length:9},(_,j)=>splitPhrase(q.d,j+1)[1]))].filter(x=>x!==parts[1]);
@@ -69,7 +96,9 @@
   save();updatePoints();effectSound(ok?'correct':'wrong');
   $('feedback').textContent=ok?'せいかい！ ＋'+reward.points+'ポイント'+(reward.repeat?'（きょうのくりかえし）':quizMode==='review'?'（ふくしゅうボーナス）':''):'おしい！ '+phrase(q.d,q.n)+' だよ。あとで もういちど！';
   $('question').textContent=phrase(q.d,q.n);$('quizEquation').textContent=q.d+' × '+q.n+' ＝ '+q.d*q.n;
-  for(const b of $('choices').children){b.disabled=true;if(b.textContent===expected)b.style.background='#b5d89f';else if(b.textContent===a&&!ok)b.style.background='#e9b4a7'}
+  for(const b of $('choices').children){b.disabled=true;if(b.textContent===expected){b.style.background='#b5d89f';b.classList.add('choice-correct')}else if(b.textContent===a&&!ok){b.style.background='#e9b4a7';b.classList.add('choice-incorrect')}}
+  $('feedback').classList.add(ok?'is-correct':'is-incorrect');
+  if(ok){$('pointGain').textContent='＋'+reward.points+' pt';$('pointGain').hidden=false;clearTimeout(pointTimer);pointTimer=setTimeout(()=>{$('pointGain').hidden=true},1100)}
   if(ok&&$('points').animate)$('points').animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:400});
   speechTimer=setTimeout(()=>{if(!$('quiz').classList.contains('hidden')&&questions[index]===q)speak(phrase(q.d,q.n))},150);
   $('next').textContent=index===questions.length-1?'けっかをみる ▶':'つぎへ ▶';$('next').classList.remove('hidden');
@@ -82,7 +111,7 @@
  }
  window.finish=function(){
   clearChoiceSpeech();stopSpeech();const perfect=correct===questions.length,bonus=quizMode==='normal'?Rules.complete(state,dan,group,perfect):{clearBonus:0,starterBonus:0,total:0};save();updatePoints();followTarget=following();
-  $('rewardEmoji').innerHTML=medal(perfect);$('rewardTitle').textContent=correct+' / '+questions.length+' もん せいかい！';$('rewardDesc').textContent='今回は ＋'+(sessionPoints+bonus.total)+'ポイント！';
+  $('rewardEmoji').innerHTML=medal(perfect);$('rewardTitle').textContent=correct+' / '+questions.length+' もん せいかい！';$('rewardDesc').textContent='＋'+(sessionPoints+bonus.total)+'ポイント';$('resultDetails').open=false;
   $('resultBreakdown').innerHTML='<div><span>せいかいのポイント</span><b>＋'+sessionPoints+'</b></div>'+(bonus.clearBonus?'<div><span>はじめてクリア！</span><b>＋'+bonus.clearBonus+'</b></div>':'')+(bonus.starterBonus?'<div><span>はじめのぼうけんボーナス！</span><b>＋'+bonus.starterBonus+'</b></div>':'')+'<p>もっているポイント：<strong>'+state.points+' pt</strong></p>';
   const progress=Rules.mastery(state,questions[0].d);$('resultMilestone').textContent=questions[0].d+'のだん：れんしゅう '+progress.started+' / 9 ・ 3日せいかい '+progress.steady+' / 9';
   const actions=$('resultActions');actions.innerHTML='';let primary,secondary;
@@ -115,7 +144,7 @@
   $('revealName').textContent=species[r.i];$('revealRarity').innerHTML=rarityTag(r.i);$('revealDescription').textContent=r.fresh?'おへやで いっしょに すごそう！':'もうなかまの子は、かけらになるよ。＋'+r.fragments+'こ！';
   const main=$('revealMain');main.textContent=r.fresh&&state.favorites.length<HOME_LIMIT?'おへやにおく':r.fresh?'なかまをみる':'かけらで なかまをむかえる';main.onclick=()=>{
    if(r.fresh&&state.favorites.length<HOME_LIMIT){if(!state.favorites.includes(r.i)){state.favorites.push(r.i);save()}closeGachaReveal();show('home')}
-   else{closeGachaReveal();if(!r.fresh)collectionView='all';show('collection');const card=$('monsters').querySelector('[data-character="'+r.i+'"]');if(card)card.scrollIntoView({block:'center'})}
+   else{closeGachaReveal();collectionRarity='all';if(!r.fresh)collectionView='all';show('collection');const card=$('monsters').querySelector('[data-character="'+r.i+'"]');if(card)card.scrollIntoView({block:'center'})}
   };
   $('gachaResult').classList.remove('hidden');$('gachaResult').innerHTML='<p>'+species[r.i]+' '+(r.fresh?'が なかまになった！':'・ かけら ＋'+r.fragments+'こ')+'</p>'+rarityTag(r.i);
   animateRevealAura();effectSound(r.rarity==='LR'?'legend':'correct');main.focus();
@@ -145,4 +174,5 @@
  home();stopRoomWalk();lockApp(true);let brandTimer=0;
  if(query.get('screen-review')==='title')showTitleScreen();else if(query.get('screen-review')!=='brand')brandTimer=setTimeout(showTitleScreen,1700);
 })();
+
 
