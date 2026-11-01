@@ -70,7 +70,7 @@
   $('recallCard').hidden=!recallMode;$('lines').hidden=recallMode;
   $('learn').querySelector('.learn-instruction').textContent=recallMode?'こたえをみるまえに、声にだしてみよう。':'いっしょに声にだして、おぼえよう！';
   if(recallMode){$('lines').innerHTML='';renderRecall()}
-  const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう はじめてなら <b>10</b>ポイント！';$('nextGachaHint').textContent=(state.points>=100?'ガチャがひけるよ！':'あと'+(100-state.points)+'ポイントで ガチャ1かい')+' ・ はじめてクリア ＋30pt';
+  const p=$('learn').querySelector('.point-explanation strong');if(p)p.innerHTML='きょう はじめてなら <b>10</b>ポイント！';$('nextGachaHint').textContent=state.points>=100?'ガチャがひけるよ！':'ガチャまで あと'+(100-state.points)+'ポイント';
  };
 
  function prepareQuiz(items,mode){
@@ -99,7 +99,7 @@
   for(const b of $('choices').children){b.disabled=true;if(b.textContent===expected){b.style.background='#b5d89f';b.classList.add('choice-correct')}else if(b.textContent===a&&!ok){b.style.background='#e9b4a7';b.classList.add('choice-incorrect')}}
   $('feedback').classList.add(ok?'is-correct':'is-incorrect');
   if(ok){$('pointGain').textContent='＋'+reward.points+' pt';$('pointGain').hidden=false;clearTimeout(pointTimer);pointTimer=setTimeout(()=>{$('pointGain').hidden=true},1100)}
-  if(ok&&$('points').animate)$('points').animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:400});
+  if(ok&&(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches)&&$('points').animate)$('points').animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:400});
   speechTimer=setTimeout(()=>{if(!$('quiz').classList.contains('hidden')&&questions[index]===q)speak(phrase(q.d,q.n))},150);
   $('next').textContent=index===questions.length-1?'けっかをみる ▶':'つぎへ ▶';$('next').classList.remove('hidden');
  };
