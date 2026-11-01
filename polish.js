@@ -8,7 +8,7 @@
  let recallMode=false,recallIndex=0,recallKey='',exchangeOpen=false;
  const app=document.querySelector('.app');
  const audioIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h6l7-6v20l-7-6H5z" fill="currentColor"/><path d="M22 11q5 5 0 10M26 7q8 9 0 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
- const shardIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 10 10-4 12-6 5-6-5-4-12Z" fill="#a6cbd6" stroke="#648590" stroke-width="2"/><path d="m16 3 4 10-4 17-4-17Zm-10 10h20" fill="none" stroke="#eff9f4" stroke-width="1.5"/></svg>';
+ const shardIcon='<img class="shard-art" src="./assets/fragment-original.webp" alt="">';
  function effectSound(kind){
   if(!state.settings.effects)return;
   try{
@@ -137,10 +137,10 @@
   const list=$('rarityExchangeList');list.innerHTML='';if(panel.hidden)return;
   const names={LR:'LR',SR:'SR',R:'R',N:'N'};
   for(const code of ['LR','SR','R','N']){
-   if(collectionRarity!=='all'&&collectionRarity!==code)continue;
+   
    const missing=rarityCodes.filter((r,i)=>r===code&&!state.owned.includes(i)).length,cost=Rules.COSTS[code];
    const row=document.createElement('div');row.className='rarity-exchange-row exchange-'+code.toLowerCase();
-   row.innerHTML='<div class="exchange-row-title"><strong>'+names[code]+'</strong><small>'+(missing?'あと'+missing+'体':'✓')+'</small></div>';
+   row.innerHTML='<div class="exchange-crystal" aria-hidden="true">'+shardIcon+'</div><div class="exchange-row-title"><strong>'+names[code]+'</strong><small>'+(missing?'あと'+missing+'体':'✓')+'</small></div>';
    const button=document.createElement('button');button.className='rarity-exchange-button';button.dataset.exchangeRarity=code;
    button.disabled=!missing;button.classList.toggle('is-unaffordable',state.fragments<cost);
    button.setAttribute('aria-label',missing?code+'の未獲得なかまを1体むかえる。かけら'+cost+'こ':'コンプリート');
