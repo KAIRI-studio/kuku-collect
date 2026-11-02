@@ -28,13 +28,13 @@
  window.openRoomPicker=function(){collectionView='owned';collectionRarity='all';show('collection')};
  function renderLearningProgress(){
   const all=Rules.mastery(state);
-  $('totalProgress').textContent='クリア '+all.clearedSets+'/27 ・ 3日せいかい '+all.steady+'/81';
+  $('totalProgress').textContent='クリア '+all.clearedSets+'/27 ・ 別の日に3回せいかい '+all.steady+'/81';
   const buttons=$('danButtons').children;
   for(let i=0;i<buttons.length;i++){
    const d=i+1,m=Rules.mastery(state,d),b=buttons[i];
    b.classList.add('dan-card');b.classList.toggle('dan-steady',m.steady===9);
-   b.setAttribute('aria-label',d+'のだん、3日せいかい '+m.steady+' / 9、クリア '+m.clearedSets+' / 3');
-   b.innerHTML='<strong>'+d+'<small>のだん</small></strong><span class="dan-dots" aria-hidden="true">'+m.items.map(q=>'<i class="dot-'+q.stage+'"></i>').join('')+'</span><small class="dan-status">'+(m.steady===9?'3日せいかい！':m.review?'ふくしゅう '+m.review+'もん':m.started?m.started+' / 9':m.clearedSets?'✓ '+m.clearedSets+' / 3':'')+'</small>';
+   b.setAttribute('aria-label',d+'のだん、別の日に3回せいかい '+m.steady+' / 9、クリア '+m.clearedSets+' / 3');
+   b.innerHTML='<strong>'+d+'<small>のだん</small></strong><span class="dan-dots" aria-hidden="true">'+m.items.map(q=>'<i class="dot-'+q.stage+'"></i>').join('')+'</span><small class="dan-status">'+(m.steady===9?'別の日に3回せいかい！':m.review?'ふくしゅう '+m.review+'もん':m.started?m.started+' / 9':m.clearedSets?'✓ '+m.clearedSets+' / 3':'')+'</small>';
   }
  }
  function shortTarget(target){return target.kind==='review'?target.label:target.label.startsWith('つぎの3つ')?'つぎの3つ':target.d?target.d+'のだん':target.label}
@@ -116,7 +116,7 @@
   clearChoiceSpeech();stopSpeech();const perfect=correct===questions.length,bonus=quizMode==='normal'?Rules.complete(state,dan,group,perfect):{clearBonus:0,starterBonus:0,total:0};save();updatePoints();followTarget=following();
   $('rewardEmoji').innerHTML=medal(perfect);$('rewardTitle').textContent=correct+' / '+questions.length+' せいかい！';$('rewardDesc').textContent='＋'+(sessionPoints+bonus.total)+'pt';$('resultDetails').open=false;
   $('resultBreakdown').innerHTML='<div><span>せいかいのポイント</span><b>＋'+sessionPoints+'</b></div>'+(bonus.clearBonus?'<div><span>はじめてクリア！</span><b>＋'+bonus.clearBonus+'</b></div>':'')+(bonus.starterBonus?'<div><span>はじめのぼうけんボーナス！</span><b>＋'+bonus.starterBonus+'</b></div>':'')+'<p>もっているポイント：<strong>'+state.points+' pt</strong></p>';
-  const progress=Rules.mastery(state,questions[0].d);$('resultMilestone').textContent=questions[0].d+'のだん：れんしゅう '+progress.started+' / 9 ・ 3日せいかい '+progress.steady+' / 9';
+  const progress=Rules.mastery(state,questions[0].d);$('resultMilestone').textContent=questions[0].d+'のだん：れんしゅう '+progress.started+' / 9 ・ 別の日に3回せいかい '+progress.steady+' / 9';
   const actions=$('resultActions');actions.innerHTML='';let primary,secondary;
   if(sessionWrong.length){primary={label:'まちがえた '+sessionWrong.length+'もんを ふくしゅう',go:()=>startReview(sessionWrong)};secondary=state.points>=100?{label:'ガチャへ',go:()=>show('gacha')}:{label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
   else if(state.points>=100){primary={label:'ガチャへ',go:()=>show('gacha')};secondary={label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
