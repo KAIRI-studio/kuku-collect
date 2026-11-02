@@ -1,5 +1,5 @@
-const CACHE='kuku-collect-v4-emblems2';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./backup.js?v=finish1','./finishing.js?v=emblems2','./finishing.css?v=emblems2'];
+const CACHE='kuku-collect-audio-uploaded1';
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./sound.js?v=uploaded1','./audio.css?v=uploaded1','./assets/audio/tap.mp3','./assets/audio/correct.mp3','./assets/audio/wrong.mp3','./assets/audio/arrival.mp3','./assets/audio/capsule.mp3','./backup.js?v=uploaded1','./finishing.js?v=uploaded1','./finishing.css?v=emblems2'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kuku-collect-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(fetch(e.request,{cache:e.request.mode==='navigate'?'no-store':'default'}).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request)))});

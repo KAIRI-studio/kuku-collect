@@ -16,6 +16,7 @@ const oldToggle=window.toggleFragmentCollection;window.toggleFragmentCollection=
 const oldOpen=window.openFragmentCollection;window.openFragmentCollection=function(){oldOpen();decorateExchange()};
 const heart='<svg viewBox="0 0 36 30" aria-hidden="true"><path d="M18 26C-5 12 6-5 18 6 30-5 41 12 18 26Z" fill="#e4a397" stroke="#654327" stroke-width="2.5"/></svg>';
 function react(friend){
+ if(window.KukuSound)KukuSound.play('tap');
  if(friend.dataset.reacting)return;friend.dataset.reacting='1';const art=friend.querySelector('.character-art');
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(art&&art.animate&&!reduced)art.animate([{transform:'translateY(0) rotate(0)'},{transform:'translateY(-9px) rotate(-5deg)'},{transform:'translateY(0) rotate(4deg)'},{transform:'translateY(-3px)'},{transform:'translateY(0)'}],{duration:650,easing:'ease-out'});
@@ -57,4 +58,26 @@ $('confirmRestore').onclick=()=>{
 };
 $('exportPrevious').onclick=()=>{try{const old=JSON.parse(localStorage.getItem('kuku-save-before-restore-v1'));if(old)download(KukuBackup.validate(KukuBackup.pack(old),species.length))}catch{status.textContent='復元前のデータを読み取れません。'}};
 try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v1')}catch{}
+
+ const closeReveal=window.closeGachaReveal;window.closeGachaReveal=function(){KukuSound.stop('reveal');return closeReveal()};
+ const changeScreen=window.show;window.show=function(id){if(id==='learn'||id==='quiz'){KukuSound.stop('reveal');KukuSound.stop('answer')}return changeScreen(id)};
+ // Uploaded sound effects. No background music is started.
+ const speech=window.playSpeech;window.playSpeech=function(...args){KukuSound.quietForSpeech();return speech(...args)};
+ document.addEventListener('pointerdown',()=>KukuSound.prime(),{passive:true,once:true});
+ document.addEventListener('keydown',()=>KukuSound.prime(),{once:true});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)KukuSound.suspend()});
+ document.addEventListener('click',event=>{
+  const b=event.target.closest('button');if(!b||b.disabled)return;
+  if(b.matches('[data-effects-toggle],#titleStart,#drawButton,#revealSkip,[data-exchange-rarity],#choices button,#lines button,.all-sounds,#recallReveal'))return;
+  KukuSound.play('tap');
+ },true);
+ const options=document.createElement('details');options.className='audio-options';
+ options.innerHTML='<summary>こうか音の音量</summary><label for="effectsVolume">音量 <output id="effectsVolumeValue"></output></label><input type="range" id="effectsVolume" min="0" max="100" step="5"><p>九九の読み上げの音量は変わりません。</p>';
+ document.querySelector('.howto-card').append(options);
+ const slider=$('effectsVolume'),value=$('effectsVolumeValue');
+ function refreshVolume(){slider.value=Math.round(KukuSound.volume()*100);value.textContent=slider.value+'%'}
+ refreshVolume();slider.oninput=()=>{state.settings.effectsVolume=Number(slider.value)/100;value.textContent=slider.value+'%';KukuSound.stopAll()};
+ slider.onchange=()=>{save();KukuSound.play('tap')};
+ const restoreConfirm=$('confirmRestore').onclick;$('confirmRestore').onclick=()=>{KukuSound.stopAll();restoreConfirm();refreshVolume();document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-pressed',String(state.settings.effects));b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする')})};
+
 })();

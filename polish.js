@@ -9,16 +9,8 @@
  const app=document.querySelector('.app');
  const audioIcon='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h6l7-6v20l-7-6H5z" fill="currentColor"/><path d="M22 11q5 5 0 10M26 7q8 9 0 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
  const shardIcon='<img class="shard-art" src="./assets/fragment-original.webp" alt="">';
- function effectSound(kind){
-  if(!state.settings.effects)return;
-  try{
-   const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
-   if(!audio)audio=new Audio();if(audio.state==='suspended')audio.resume().catch(()=>{});
-   const notes=kind==='wrong'?[330,294]:kind==='capsule'?[262,330,392]:kind==='legend'?[392,494,587,784,988]:kind==='correct'?[523,659,784]:kind==='start'?[392,523,659]:[659,880];
-   notes.forEach((f,j)=>{const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+j*.075;o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.2)});
-  }catch{}
- }
- window.toggleEffects=function(){state.settings.effects=!state.settings.effects;save();updateSoundButtons();if(state.settings.effects)effectSound('tap')};
+ function effectSound(kind){if(window.KukuSound)KukuSound.play(kind==='start'?'tap':kind==='legend'?'arrival':kind)}
+ window.toggleEffects=function(){state.settings.effects=!state.settings.effects;save();updateSoundButtons();if(!state.settings.effects&&window.KukuSound)KukuSound.stopAll();if(state.settings.effects)effectSound('tap')};
  function updateSoundButtons(){document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.innerHTML=audioIcon;b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする');b.setAttribute('aria-pressed',String(state.settings.effects));b.title='こうか音 '+(state.settings.effects?'ON':'OFF')})}
  function lockApp(locked){app.inert=locked;app.setAttribute('aria-hidden',String(locked))}
  function medal(perfect){return '<svg viewBox="0 0 120 120" role="img" aria-label="'+(perfect?'よくできたメダル':'がんばったメダル')+'"><path d="m30 65-8 45 22-10 14 13 4-45M65 65l-1 45 17-12 20 5-15-40" fill="'+(perfect?'#a7bf8f':'#b2cad1')+'" stroke="#7c714f" stroke-width="3" stroke-linejoin="round"/><circle cx="60" cy="47" r="36" fill="'+(perfect?'#efd17f':'#e9e1cb')+'" stroke="#9d7c3f" stroke-width="4"/><circle cx="60" cy="47" r="28" fill="#fff3c9" stroke="#d4b362" stroke-width="2"/><path d="m60 25 7 14 16 2-12 12 3 17-14-8-14 8 3-17-12-12 16-2Z" fill="'+(perfect?'#d4a84f':'#a0b69b')+'" stroke="#997b44" stroke-width="2" stroke-linejoin="round"/></svg>'}
@@ -103,7 +95,7 @@
   $('feedback').classList.add(ok?'is-correct':'is-incorrect');
   if(ok){$('pointGain').textContent='＋'+reward.points+' pt';$('pointGain').hidden=false;clearTimeout(pointTimer);pointTimer=setTimeout(()=>{$('pointGain').hidden=true},1100)}
   if(ok&&(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches)&&$('points').animate)$('points').animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:400});
-  speechTimer=setTimeout(()=>{if(!$('quiz').classList.contains('hidden')&&questions[index]===q)speak(phrase(q.d,q.n))},150);
+  speechTimer=setTimeout(()=>{if(!$('quiz').classList.contains('hidden')&&questions[index]===q)speak(phrase(q.d,q.n))},650);
   $('next').textContent=index===questions.length-1?'けっかをみる ▶':'つぎへ ▶';$('next').classList.remove('hidden');
  };
  window.nextQuestion=function(){if(!answered)return;index++;if(index<questions.length)renderQuestion();else finish()};
@@ -122,7 +114,7 @@
   else if(state.points>=100){primary={label:'ガチャへ',go:()=>show('gacha')};secondary={label:shortTarget(followTarget),go:()=>runTarget(followTarget)}}
   else{primary={label:shortTarget(followTarget),go:()=>runTarget(followTarget)};secondary={label:'もういちど',go:()=>quizMode==='review'?startReview(questions):show('learn')}}
   for(const [item,cls]of [[primary,'primary'],[secondary,'secondary']]){const b=document.createElement('button');b.className=cls;b.textContent=item.label+' ▶';b.onclick=item.go;actions.append(b)}
-  show('result');$('result').classList.toggle('perfect-result',perfect);effectSound(perfect?'start':'tap');
+  show('result');$('result').classList.toggle('perfect-result',perfect);effectSound(perfect?'arrival':'tap');
  };
  function fragmentBar(){return shardIcon+'<span>かけら <b>'+state.fragments+'</b>こ</span>'}
  window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()+'<button class="fragment-entry" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'<img src="./assets/fragment-original.webp" alt=""><span>かけらで むかえる</span><span aria-hidden="true">▶</span>')+'</button>';renderRarityExchange()};
@@ -162,7 +154,7 @@
    else{closeGachaReveal();collectionRarity='all';show('collection');if(!r.fresh)openFragmentCollection();else{const card=$('monsters').querySelector('[data-character="'+r.i+'"]');if(card)card.scrollIntoView({block:'center'})}}
   };
   $('gachaResult').classList.remove('hidden');$('gachaResult').innerHTML='<p>'+species[r.i]+' '+(r.fresh?'が なかまになった！':'・ かけら ＋'+r.fragments+'こ')+'</p>'+rarityTag(r.i);
-  animateRevealAura();effectSound(r.rarity==='LR'?'legend':'correct');main.focus();
+  animateRevealAura();effectSound('arrival');main.focus();
  }
  function reveal(r){
   clearRevealTimers();gachaBusy=true;revealDone=false;revealResult=r;revealPreviousFocus=document.activeElement;lockApp(true);const view=$('gachaReveal');view.hidden=false;view.className='gacha-reveal reveal-'+r.rarity.toLowerCase();$('revealHeadline').textContent='なかまガチャ';

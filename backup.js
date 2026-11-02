@@ -14,6 +14,7 @@ function validate(input,total=50){
  const out={};for(const k of keys)if(Object.prototype.hasOwnProperty.call(s,k))out[k]=s[k];
  if(out.dailyPractice){const d=out.dailyPractice;if(typeof d.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!d.correct||typeof d.correct!=='object'||Array.isArray(d.correct)||Object.entries(d.correct).some(([k,v])=>!/^([1-9])-([1-9])$/.test(k)||!integer(v,1e9)))bad()}
  if(out.settings&&(!out.settings||typeof out.settings!=='object'||Array.isArray(out.settings)||typeof out.settings.effects!=='boolean'))bad();
+ if(out.settings&&out.settings.effectsVolume!==undefined&&(typeof out.settings.effectsVolume!=='number'||!Number.isFinite(out.settings.effectsVolume)||out.settings.effectsVolume<0||out.settings.effectsVolume>1))bad();
  for(const k of ['fragmentExchangeUnlocked','starterBonusClaimed'])if(out[k]!==undefined&&typeof out[k]!=='boolean')bad();
  if(out.drawCount!==undefined&&!integer(out.drawCount,1e9))bad();
  return out;
