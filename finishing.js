@@ -3,11 +3,12 @@
 const $=id=>document.getElementById(id),Rules=window.KukuRules;let pendingRestore=null,reactionTimer;
 const mark=(code)=>{
  const shapes={
- N:'<path d="M22 41Q9 21 27 14q16 4 15 14-3 14-20 13Z" fill="#b5ce94"/><path d="m22 41 11-18" fill="none"/>',
- R:'<path d="M22 13q-18 8-12 22t24 8q-15-1-16-12t4-18Z" fill="#c1dae3"/><path d="m40 15 3 7 8 2-7 4-1 8-5-6-8 1 4-7-2-7Z" fill="#eff6f3"/>',
- SR:'<path d="m31 6 6 8 10-1-1 10 9 6-9 6 1 10-10-1-6 8-6-8-10 1 1-10-9-6 9-6-1-10 10 1Z" fill="#edc46d"/><circle cx="31" cy="29" r="11" fill="#fff3ca"/>',
- LR:'<path d="m12 19 12 9 8-16 8 16 12-9-5 27H17Z" fill="#e3a490"/><path d="m32 22 7 10-7 9-7-9Z" fill="#fff0c7"/><path d="M18 47h28" fill="none"/>'
- };return '<svg class="exchange-emblem" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="56" rx="24" ry="5" fill="#d9bd8a" stroke="#765136" stroke-width="2"/><g stroke="#654327" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round">'+shapes[code]+'</g></svg>'
+ N:'<path d="M21 43C13 34 16 20 28 17c9-3 17 2 17 10 0 11-10 20-24 16Z" fill="#b4c992"/><path d="M22 42q5-13 15-18" fill="none"/><path d="m28 31 7 1" fill="none" stroke-width="2"/>',
+ R:'<path d="M32 12C15 8 9 21 12 32c3 12 17 18 28 10-13 2-22-9-19-19 2-6 6-9 11-11Z" fill="#b5cfd9"/><path d="M44 16q1 7 8 9-7 1-9 8-1-7-8-9 7-1 9-8Z" fill="#fff0c4" stroke-width="2.5"/>',
+ SR:'<path d="M32 10q6-9 10 1 10-4 10 6 11 2 4 10 7 8-4 11 0 11-10 6-5 10-10 1-7 9-11-1-10 4-10-6-10-3-4-11-6-8 4-11 0-10 10-6 5-10 11 0Z" fill="#e6c474"/><circle cx="32" cy="27" r="12" fill="#fff0c6"/><path d="M27 22q3-3 7-2" fill="none" stroke="#fff9e8" stroke-width="3"/>',
+ LR:'<path d="M13 22q-1-4 3-2l9 8 6-13q1-3 3 0l6 13 9-8q4-2 3 2l-5 21q-15 5-30 0Z" fill="#dfa58f"/><path d="M18 40q14 4 28 0v6q-14 5-28 0Z" fill="#ebcb86"/><path d="m32 26 6 6-6 7-6-7Z" fill="#abcbd7" stroke-width="2.3"/><circle cx="14" cy="20" r="3" fill="#edcf8e"/><circle cx="32" cy="13" r="3" fill="#edcf8e"/><circle cx="50" cy="20" r="3" fill="#edcf8e"/>'
+ };return '<svg class="exchange-emblem" viewBox="0 0 64 68" aria-hidden="true"><ellipse cx="32" cy="58" rx="21" ry="4" fill="#836342" opacity=".12"/><path d="M13 52q19-7 38 0v5q-19 7-38 0Z" fill="#d9b784" stroke="#795435" stroke-width="2.7" stroke-linejoin="round"/><ellipse cx="32" cy="52" rx="19" ry="4.5" fill="#f4dfb1" stroke="#795435" stroke-width="2.7"/><g stroke="#654327" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round">'+shapes[code]+'</g></svg>'
+
 };
 function decorateExchange(){for(const row of document.querySelectorAll('.rarity-exchange-row')){const code=['N','R','SR','LR'].find(c=>row.classList.contains('exchange-'+c.toLowerCase()));if(code)row.querySelector('.exchange-crystal').innerHTML=mark(code)}}
 const oldGacha=window.renderGacha;window.renderGacha=function(){oldGacha();decorateExchange()};

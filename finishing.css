@@ -58,3 +58,6 @@
 #roomFriends .room-friend[role=button]{pointer-events:auto}.app>header .art-logo{flex:1;max-width:52%;width:175px}.app>header #points{flex-shrink:0}
 
 @media(max-width:359px){.exchange-banner{gap:7px}.exchange-banner>img{width:48px;height:58px}.exchange-banner h3{font-size:16px;white-space:nowrap}.exchange-banner p{font-size:10px}}
+
+/* Rounded illustrated emblems, matching the room's warm linework. */
+.exchange-emblem{width:76px;height:78px;overflow:visible}.exchange-crystal{height:82px}
