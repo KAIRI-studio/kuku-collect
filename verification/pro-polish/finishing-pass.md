@@ -1,0 +1,7 @@
+# Finishing pass verification
+
+Implemented six requested improvements: compact collection (3 columns at >=360px, 2 below), consistent paper/wood learning palette, four distinct original SVG rarity emblems and pedestals, tappable home friend reaction with keyboard support, initial-clear/review completion badge and animated correct-count dots, versioned JSON backup export/import with validation and separate confirmation.
+
+Validation: 13 Node tests passed (learning rewards, mastery, rarity exchange, filters, save initialization and backup valid roundtrip/malformed rejection). Ownership, ordered favorites, points, fragments, clears, distinct-day mastery and effects preference roundtrip verified. Malformed/foreign files rejected before replacing live state. Restore retains a pre-restore snapshot in a separate storage key; no actual user save was replaced during QA.
+
+Browser verification on the deployed app using preview-roster/preview-exchange (save writes disabled): 375x667 home tap reaction and live status, 3-column collection, backup screen and preview export guard, reading screen, three correct answers through first-clear result (+60pt with existing ownership), 320x568 header and exchange open showing all four distinct emblems. Patched 320px exchange heading wrap and modal return focus. Reduced-motion alternatives provided. Existing characters/IDs/rarities, favorites and learning reward rules unchanged; removed login card remains removed.

@@ -33,6 +33,9 @@ const oldFinish=window.finish;window.finish=function(){
  let dots=$('achievementDots');if(!dots){dots=document.createElement('div');dots.id='achievementDots';$('rewardDesc').before(dots)}
  dots.innerHTML=questions.map((_,i)=>'<span class="'+(i<correct?'achieved':'')+'" aria-hidden="true">'+(i<correct?'✓':'・')+'</span>').join('');dots.setAttribute('aria-label',questions.length+'もん中'+correct+'もんせいかい');
 };
+let helpReturn=null;const oldHelpOpen=window.openHowTo,oldHelpClose=window.closeHowTo;
+window.openHowTo=function(){helpReturn=document.activeElement;oldHelpOpen()};
+window.closeHowTo=function(){oldHelpClose();if(helpReturn&&helpReturn.isConnected)helpReturn.focus()};
 const settings=document.createElement('button');settings.className='save-tools-trigger';settings.setAttribute('aria-label','セーブ・あそびかた');settings.innerHTML='<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 4h16l3 4v16H4V4Z" fill="#f4e8ca" stroke="#896b45" stroke-width="2"/><path d="M9 4v8h10V4M9 24v-8h10v8" fill="#b6d2d9" stroke="#896b45" stroke-width="2"/></svg>';settings.onclick=()=>openHowTo();document.querySelector('.app>header').append(settings);
 const tools=document.createElement('details');tools.className='save-tools';tools.innerHTML='<summary>セーブのバックアップ</summary><p>このブラウザに保存されています。端末を変える前に書き出してね。</p><button type="button" id="exportSave">書き出す</button><label class="save-file-label">バックアップをえらぶ<input id="importSave" type="file" accept=".json,application/json"></label><p id="backupStatus" role="status"></p><div id="restorePreview" hidden><p id="restoreSummary"></p><button type="button" id="confirmRestore">このデータに復元する</button><button type="button" id="cancelRestore">やめる</button></div><button type="button" id="exportPrevious" hidden>復元前のデータを書き出す</button>';
 document.querySelector('.howto-card').append(tools);
