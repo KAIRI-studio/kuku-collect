@@ -81,7 +81,7 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
    const buffer=await musicBuffer;
    if(!buffer||musicSource||document.hidden||!musicEnabled.checked)return;
    const gain=musicContext.createGain();
-   gain.gain.value=.08;
+   gain.gain.value=.04;
    gain.connect(musicContext.destination);
    musicSource=musicContext.createBufferSource();
    musicSource.buffer=buffer;
@@ -117,7 +117,7 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
  document.querySelector('.howto-card').append(options);
  const slider=$('effectsVolume'),value=$('effectsVolumeValue');
  function refreshVolume(){slider.value=Math.round(KukuSound.volume()*100);value.textContent=slider.value+'%'}
- refreshVolume();slider.oninput=()=>{state.settings.effectsVolume=Number(slider.value)/100;value.textContent=slider.value+'%';KukuSound.stopAll()};
+ refreshVolume();slider.oninput=()=>{state.settings.effectsVolume=Number(slider.value)/100;value.textContent=slider.value+'%';if(!KukuSound.volume())KukuSound.stopAll()};
  slider.onchange=()=>{save();KukuSound.play('tap')};
  const restoreConfirm=$('confirmRestore').onclick;$('confirmRestore').onclick=()=>{KukuSound.stopAll();restoreConfirm();refreshVolume();document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-pressed',String(state.settings.effects));b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする')})};
 
