@@ -30,6 +30,9 @@
   }
  }
  function shortTarget(target){return target.kind==='review'?target.label:target.label.startsWith('つぎの3つ')?'つぎの3つ':target.d?target.d+'のだん':target.label}
+ function tutorialFirst(){return !state.owned.length&&!state.points&&!state.drawCount&&!Object.keys(state.clears).length&&!Object.keys(state.practice||{}).length}
+ function tutorialPending(){return Number.isInteger(state.tutorialCompanion)&&state.owned.includes(state.tutorialCompanion)&&!state.tutorialComplete}
+ window.startFirstGacha=function(){show('gacha')};
  function recommendation(){
   renderLearningProgress();
   const target=Rules.next(state),count=Rules.due(state).length;
@@ -43,8 +46,13 @@
   h.innerHTML='<div class="recommend-top"><span>'+title+'</span></div><button class="recommend-go" onclick="'+action+'">'+label+' <span aria-hidden="true">▶</span></button>'+(first?'<p class="first-path">九九 → ガチャ → おへや</p>':'');
   let welcome=$('roomWelcome');if(!welcome){welcome=document.createElement('div');welcome.id='roomWelcome';welcome.setAttribute('aria-hidden','true');$('home').append(welcome)}
   welcome.hidden=!!state.favorites.length||!first;
-  welcome.innerHTML='<svg viewBox="0 0 72 84" aria-hidden="true"><path d="M12 40a24 24 0 0 1 48 0v3H12Z" fill="#cee1e5" stroke="#715333" stroke-width="3"/><path d="M12 43h48v3a24 24 0 0 1-48 0Z" fill="#e9c878" stroke="#715333" stroke-width="3"/><path d="M23 27q3-7 11-9" fill="none" stroke="#fff9ec" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="43" r="6" fill="#fff9ec" stroke="#715333" stroke-width="2"/></svg>';
+  welcome.innerHTML='<svg viewBox="0 0 100 108" aria-hidden="true"><ellipse cx="50" cy="98" rx="30" ry="5" fill="#715333" opacity=".12"/><circle cx="50" cy="49" r="38" fill="#edc777" stroke="#654327" stroke-width="4"/><path d="M12 49a38 38 0 0 1 76 0Z" fill="#c5dfe8" stroke="#654327" stroke-width="4" stroke-linejoin="round"/><path d="M25 31q5-10 17-12" fill="none" stroke="#fff9ec" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="49" r="8" fill="#fff3d7" stroke="#654327" stroke-width="3"/></svg>';
 
+  if(tutorialFirst()||tutorialPending()){
+   h.classList.add('tutorial-card');
+   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button><p class="first-path">'+(tutorialPending()?'あとひとつ！':'1かい むりょう')+'</p>';
+   welcome.hidden=true;
+  }else h.classList.remove('tutorial-card');
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
   card.innerHTML='<button class="primary" onclick="startRecommended()">'+shortTarget(target)+' ▶</button>';
  }
@@ -117,7 +125,11 @@
   show('result');$('result').classList.toggle('perfect-result',perfect);effectSound(perfect?'arrival':'tap');
  };
  function fragmentBar(){return shardIcon+'<span>かけら <b>'+state.fragments+'</b>こ</span>'}
- window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()+'<button class="fragment-entry" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'<img src="./assets/fragment-original.webp" alt=""><span>かけらで むかえる</span><span aria-hidden="true">▶</span>')+'</button>';renderRarityExchange()};
+ window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()+'<button class="fragment-entry" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'<img src="./assets/fragment-original.webp" alt=""><span>かけらで むかえる</span><span aria-hidden="true">▶</span>')+'</button>';renderRarityExchange();
+ const tutorial=tutorialFirst()||tutorialPending();
+ $('drawButton').classList.toggle('tutorial-pulse',tutorial);
+ if(tutorial){$('drawButton').disabled=gachaBusy;$('drawButton').textContent=tutorialPending()?'へやにおこう':'むりょうで ひく';$('gachaHint').textContent=tutorialPending()?'なかまを おへやへ':'① ガチャ → ② へやにおく'}else $('drawButton').textContent='100ptで ひく';
+ };
  window.collection=function(){
   base.collection();
   for(const card of $('monsters').querySelectorAll('.friend-card')){
@@ -149,8 +161,8 @@
   $('revealHeadline').textContent=r.source==='exchange'?'かけらで なかまになった！':r.fresh?'あたらしい なかま！':'なかまのかけら ゲット！';
   $('revealCharacter').dataset.character=String(r.i);$('revealCharacter').innerHTML='<div class="walk-facing">'+character(r.i)+'</div>'+friendEffects(r.i);
   $('revealName').textContent=species[r.i];$('revealRarity').innerHTML=rarityTag(r.i);$('revealDescription').textContent=r.fresh?'':r.firstFragments?'はじめてのかけら ＋'+r.fragments+'こ！\nレアをえらんで むかえよう。':'＋'+r.fragments+'こ';
-  const main=$('revealMain');main.textContent=r.fresh&&state.favorites.length<HOME_LIMIT?'おへやにおく':r.fresh?'なかまをみる':'かけらをつかう';main.onclick=()=>{
-   if(r.fresh&&state.favorites.length<HOME_LIMIT){if(!state.favorites.includes(r.i)){state.favorites.push(r.i);save()}closeGachaReveal();show('home')}
+  const main=$('revealMain');main.textContent=r.fresh&&state.favorites.length<HOME_LIMIT?'へやにおく':r.fresh?'なかまをみる':'かけらをつかう';main.onclick=()=>{
+   if(r.fresh&&state.favorites.length<HOME_LIMIT){if(!state.favorites.includes(r.i)){state.favorites.push(r.i);if(state.tutorialCompanion===r.i)state.tutorialComplete=true;save()}closeGachaReveal();show('home')}
    else{closeGachaReveal();collectionRarity='all';show('collection');if(!r.fresh)openFragmentCollection();else{const card=$('monsters').querySelector('[data-character="'+r.i+'"]');if(card)card.scrollIntoView({block:'center'})}}
   };
   $('gachaResult').classList.remove('hidden');$('gachaResult').innerHTML='<p>'+species[r.i]+' '+(r.fresh?'が なかまになった！':'・ かけら ＋'+r.fragments+'こ')+'</p>'+rarityTag(r.i);
@@ -161,7 +173,13 @@
   $('revealContent').hidden=true;$('revealSkip').hidden=false;$('revealSkip').focus();$('revealLoading').textContent=r.source==='exchange'?'むかえているよ…':'だれがくるかな？';
   effectSound('capsule');later(()=>view.classList.add('is-opening'),800);later(finishReveal,1350);renderGacha();
  }
- window.drawGacha=function(){if(gachaBusy)return;const result=Rules.draw(state,rarityCodes);if(!result)return;save();updatePoints();reveal(result)};
+ window.drawGacha=function(){if(gachaBusy)return;
+ if(tutorialPending()){reveal({i:state.tutorialCompanion,rarity:rarityCodes[state.tutorialCompanion],fresh:true,source:'tutorial'});return}
+ if(tutorialFirst()){
+  const ids=rarityCodes.map((r,i)=>r==='N'?i:-1).filter(i=>i>=0),i=ids[Math.floor(Math.random()*ids.length)];
+  state.owned.push(i);state.tutorialCompanion=i;state.drawCount=(state.drawCount||0)+1;save();updatePoints();reveal({i,rarity:'N',fresh:true,source:'tutorial'});return;
+ }
+const result=Rules.draw(state,rarityCodes);if(!result)return;save();updatePoints();reveal(result)};
  function clearFragmentNotice(){clearTimeout(fragmentTimer);$('fragmentNotice').hidden=true}
  function fragmentNotice(message){clearTimeout(fragmentTimer);$('fragmentNotice').textContent=message;$('fragmentNotice').hidden=false;fragmentTimer=setTimeout(()=>{$('fragmentNotice').hidden=true},3800)}
  window.openFragmentCollection=function(){if(!state.fragmentExchangeUnlocked)return;exchangeOpen=true;show('gacha');$('fragmentExchangePanel').scrollIntoView({block:'nearest'})};
@@ -190,6 +208,7 @@
  home();stopRoomWalk();lockApp(true);let brandTimer=0;
  if(query.get('screen-review')==='title')showTitleScreen();else if(query.get('screen-review')!=='brand')brandTimer=setTimeout(showTitleScreen,1700);
 })();
+
 
 
 

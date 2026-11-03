@@ -66,3 +66,10 @@
 #roomFriends .room-friend,#roomFriends .room-friend *{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #roomFriends .room-friend:focus:not(:focus-visible),#roomFriends .room-friend[data-pointer-focus]:focus-visible{outline:none}
 #roomFriends .room-friend .character-art{pointer-events:none}
+
+
+/* First companion: one clear action, no overlay over the room. */
+.tutorial-pulse{box-shadow:0 0 0 4px #edc77788!important;animation:tutorialGlow 2s ease-in-out infinite}
+@keyframes tutorialGlow{50%{box-shadow:0 0 0 7px #edc77733}}
+@media(prefers-reduced-motion:reduce){.tutorial-pulse{animation:none}}
+#roomWelcome svg{width:100%;height:100%;overflow:visible}
