@@ -212,3 +212,12 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
   left: calc(50% - 87px);
   top: calc(50% - 107px);
 }
+
+@media (display-mode: standalone) and (orientation: portrait) {
+  .app > nav {
+    height: calc(62px + env(safe-area-inset-bottom));
+  }
+  .app > nav .ui-picture {
+    max-width: 86px;
+  }
+}
