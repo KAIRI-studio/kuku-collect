@@ -221,3 +221,20 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
     max-width: 86px;
   }
 }
+
+/* Frame the portrait game on wide screens with space around it. */
+@media (min-width: 760px) and (min-height: 780px) and (hover: hover) {
+  body {
+    align-items: center;
+    background: #e9dfca;
+  }
+  .app, .launch-title {
+    height: min(790px, calc(100dvh - 48px));
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px #cbb995, 0 14px 36px #69502d26;
+  }
+  .launch-title {
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+  }
+}
