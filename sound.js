@@ -1,4 +1,7 @@
-(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.KukuSound=api.create({settings:()=>state.settings||{},hidden:()=>document.hidden,context:()=>new (window.AudioContext||window.webkitAudioContext)(),fetch:url=>fetch(url),now:()=>Date.now()})})(typeof globalThis!=='undefined'?globalThis:this,function(){
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.KukuSound=api.create({settings:()=>state.settings||{},hidden:()=>document.hidden,context:()=>{
+ try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch{}
+ return new (window.AudioContext||window.webkitAudioContext)();
+},fetch:url=>fetch(url),now:()=>Date.now()})})(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
 const clips={tap:{file:'tap',gain:.35,group:'tap'},correct:{file:'correct',gain:.55,group:'answer'},wrong:{file:'wrong',gain:.40,group:'answer'},capsule:{file:'capsule',gain:.26,group:'reveal'},arrival:{file:'arrival',gain:.32,group:'reveal'}};
 function create(env){
