@@ -1,6 +1,6 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.KukuRules=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const DAY=86400000,RATES={N:55,R:25,SR:15,LR:5},DUPLICATES={N:1,R:3,SR:8,LR:20},COSTS={N:10,R:30,SR:80,LR:160};
+ const DAY=86400000,RATES={N:69.5,R:25,SR:5,LR:0.5},DUPLICATES={N:1,R:3,SR:8,LR:20},COSTS={N:10,R:30,SR:80,LR:160};
  const dayKey=now=>new Date(now+9*3600000).toISOString().slice(0,10);
  const valid=q=>q&&Number.isInteger(q.d)&&q.d>=1&&q.d<=9&&Number.isInteger(q.n)&&q.n>=1&&q.n<=9;
  const key=q=>q.d+'-'+q.n;
