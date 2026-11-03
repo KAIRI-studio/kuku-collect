@@ -3,7 +3,7 @@
  const query=new URLSearchParams(location.search);if(query.has('walk-review'))return;
  const Rules=window.KukuRules;Rules.init(state);
  const base={home:window.home,show:window.show,learn:window.renderLearn,collection:window.collection,gacha:window.renderGacha};
- let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],speechTimer=0,revealPreviousFocus=null;
+ let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],revealPreviousFocus=null;
  let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null,pointTimer=0,fragmentTimer=0;
  let recallMode=false,recallIndex=0,recallKey='',exchangeOpen=false;
  const app=document.querySelector('.app');
@@ -14,7 +14,6 @@
  function updateSoundButtons(){document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.innerHTML=audioIcon;b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする');b.setAttribute('aria-pressed',String(state.settings.effects));b.title='こうか音 '+(state.settings.effects?'ON':'OFF')})}
  function lockApp(locked){app.inert=locked;app.setAttribute('aria-hidden',String(locked))}
  function medal(perfect){return '<svg viewBox="0 0 120 120" role="img" aria-label="'+(perfect?'よくできたメダル':'がんばったメダル')+'"><path d="m30 65-8 45 22-10 14 13 4-45M65 65l-1 45 17-12 20 5-15-40" fill="'+(perfect?'#a7bf8f':'#b2cad1')+'" stroke="#7c714f" stroke-width="3" stroke-linejoin="round"/><circle cx="60" cy="47" r="36" fill="'+(perfect?'#efd17f':'#e9e1cb')+'" stroke="#9d7c3f" stroke-width="4"/><circle cx="60" cy="47" r="28" fill="#fff3c9" stroke="#d4b362" stroke-width="2"/><path d="m60 25 7 14 16 2-12 12 3 17-14-8-14 8 3-17-12-12 16-2Z" fill="'+(perfect?'#d4a84f':'#a0b69b')+'" stroke="#997b44" stroke-width="2" stroke-linejoin="round"/></svg>'}
- function clearChoiceSpeech(){clearTimeout(speechTimer);speechTimer=0}
  function runTarget(target){target=target||Rules.next(state);if(target.kind==='review')startReview(target.items);else{dan=target.d;group=target.g;show('learn')}}
  window.startRecommended=function(){runTarget(Rules.next(state))};
  window.openRoomPicker=function(){collectionView='owned';collectionRarity='all';show('collection')};
@@ -58,13 +57,13 @@
  }
 
  window.home=function(){base.home();$('totalProgress').textContent='クリアしたところ：'+Object.keys(state.clears).filter(k=>state.clears[k]).length+' / 27 セット';recommendation();if(launchOpen)stopRoomWalk()};
- window.show=function(id){clearFragmentNotice();clearChoiceSpeech();clearTimeout(pointTimer);$('pointGain').hidden=true;if(id!=='quiz'){$('feedback').classList.remove('is-correct','is-incorrect');document.querySelectorAll('#choices button').forEach(b=>b.classList.remove('choice-correct','choice-incorrect'))}base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
+ window.show=function(id){clearFragmentNotice();clearTimeout(pointTimer);$('pointGain').hidden=true;if(id!=='quiz'){$('feedback').classList.remove('is-correct','is-incorrect');document.querySelectorAll('#choices button').forEach(b=>b.classList.remove('choice-correct','choice-incorrect'))}base.show(id);if(id==='home')recommendation();if(launchOpen)stopRoomWalk()};
  function renderRecall(){
   const n=group*3+recallIndex+1,parts=splitPhrase(dan,n);
   $('recallCounter').textContent=(recallIndex+1)+' / 3 もん';$('recallPrompt').textContent=parts[0]+' ○○';$('recallEquation').textContent=dan+' × '+n+' ＝ □';
   $('recallReveal').hidden=false;$('recallNext').hidden=true;$('recallNext').textContent=recallIndex<2?'つぎの九九へ ▶':'もういちど この3つ';
  }
- window.setLearnMode=function(hiddenAnswer){stopSpeech();clearChoiceSpeech();recallMode=!!hiddenAnswer;recallIndex=0;renderLearn()};
+ window.setLearnMode=function(hiddenAnswer){stopSpeech();recallMode=!!hiddenAnswer;recallIndex=0;renderLearn()};
  window.revealRecall=function(){if(!recallMode||$('recallReveal').hidden)return;const n=group*3+recallIndex+1;$('recallPrompt').textContent=phrase(dan,n);$('recallEquation').textContent=dan+' × '+n+' ＝ '+dan*n;$('recallReveal').hidden=true;$('recallNext').hidden=false};
  window.nextRecall=function(){if(!recallMode||!$('recallReveal').hidden)return;recallIndex=(recallIndex+1)%3;renderRecall()};
  window.renderLearn=function(){
@@ -77,7 +76,7 @@
  };
 
  function prepareQuiz(items,mode){
-  clearChoiceSpeech();stopSpeech();quizMode=mode;questions=items;index=0;correct=0;sessionPoints=0;sessionWrong=[];show('quiz');renderQuestion();
+  stopSpeech();quizMode=mode;questions=items;index=0;correct=0;sessionPoints=0;sessionWrong=[];show('quiz');renderQuestion();
  }
  window.startQuiz=function(){const items=[1,2,3].map(x=>({d:dan,n:group*3+x}));for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}prepareQuiz(items,'normal')};
  window.startReview=function(items){
@@ -86,7 +85,7 @@
   if(!list.length){runTarget(Rules.next(state));return}prepareQuiz(list,'review');
  };
  window.renderQuestion=function(){
-  clearChoiceSpeech();stopSpeech();answered=false;const q=questions[index],parts=splitPhrase(q.d,q.n);$('next').classList.add('hidden');$('feedback').textContent='';$('feedback').classList.remove('is-correct','is-incorrect');
+  stopSpeech();answered=false;const q=questions[index],parts=splitPhrase(q.d,q.n);$('next').classList.add('hidden');$('feedback').textContent='';$('feedback').classList.remove('is-correct','is-incorrect');
   $('question').textContent=parts[0]+' ○○';$('quizEquation').textContent=q.d+' × '+q.n+' ＝ □';$('quizProgress').textContent=(quizMode==='review'?'ふくしゅう':q.d+'のだん')+'　'+(index+1)+' / '+questions.length;$('bar').style.width=(index/questions.length*100)+'%';
   $('quiz').querySelector('.quiz-reward strong').textContent='せいかい ＋'+Rules.rewardFor(state,q,quizMode==='review')+'pt';
   const answers=[parts[1]],candidates=[...new Set(Array.from({length:9},(_,j)=>splitPhrase(q.d,j+1)[1]))].filter(x=>x!==parts[1]);
@@ -103,7 +102,6 @@
   $('feedback').classList.add(ok?'is-correct':'is-incorrect');
   if(ok){$('pointGain').textContent='＋'+reward.points+' pt';$('pointGain').hidden=false;clearTimeout(pointTimer);pointTimer=setTimeout(()=>{$('pointGain').hidden=true},1100)}
   if(ok&&(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches)&&$('points').animate)$('points').animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:400});
-  speechTimer=setTimeout(()=>{if(!$('quiz').classList.contains('hidden')&&questions[index]===q)speak(phrase(q.d,q.n))},650);
   $('next').textContent=index===questions.length-1?'けっかをみる ▶':'つぎへ ▶';$('next').classList.remove('hidden');
  };
  window.nextQuestion=function(){if(!answered)return;index++;if(index<questions.length)renderQuestion();else finish()};
@@ -113,7 +111,7 @@
   return Rules.next(state);
  }
  window.finish=function(){
-  clearChoiceSpeech();stopSpeech();const perfect=correct===questions.length,bonus=quizMode==='normal'?Rules.complete(state,dan,group,perfect):{clearBonus:0,starterBonus:0,total:0};save();updatePoints();followTarget=following();
+  stopSpeech();const perfect=correct===questions.length,bonus=quizMode==='normal'?Rules.complete(state,dan,group,perfect):{clearBonus:0,starterBonus:0,total:0};save();updatePoints();followTarget=following();
   $('rewardEmoji').innerHTML=medal(perfect);$('rewardTitle').textContent=correct+' / '+questions.length+' せいかい！';$('rewardDesc').textContent='＋'+(sessionPoints+bonus.total)+'pt';$('resultDetails').open=false;
   $('resultBreakdown').innerHTML='<div><span>せいかいのポイント</span><b>＋'+sessionPoints+'</b></div>'+(bonus.clearBonus?'<div><span>はじめてクリア！</span><b>＋'+bonus.clearBonus+'</b></div>':'')+(bonus.starterBonus?'<div><span>はじめのぼうけんボーナス！</span><b>＋'+bonus.starterBonus+'</b></div>':'')+'<p>もっているポイント：<strong>'+state.points+' pt</strong></p>';
   const progress=Rules.mastery(state,questions[0].d);$('resultMilestone').textContent=questions[0].d+'のだん：れんしゅう '+progress.started+' / 9 ・ 別の日に3回せいかい '+progress.steady+' / 9';
