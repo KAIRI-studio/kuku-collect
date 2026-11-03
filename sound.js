@@ -17,7 +17,7 @@ function create(env){
   }catch{}
  }
  function prime(){if(!setup())return;for(const k of Object.keys(clips))load(k)}
- function quietForSpeech(){stop('answer',.06);stop('tap',.04);stop('reveal',.06)}
+ function quietForSpeech(){stop('tap',.04);stop('reveal',.06)}
  function suspend(){stopAll();if(ctx)Promise.resolve(ctx.suspend()).catch(()=>{})}
  return {play,prime,stop,stopAll,quietForSpeech,suspend,volume};
 }
