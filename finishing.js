@@ -61,7 +61,49 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
 
  const closeReveal=window.closeGachaReveal;window.closeGachaReveal=function(){KukuSound.stop('reveal');return closeReveal()};
  const changeScreen=window.show;window.show=function(id){if(id==='learn'||id==='quiz'){KukuSound.stop('reveal')}return changeScreen(id)};
- // Uploaded sound effects. No background music is started.
+ // Start music after a user gesture and pause it while the app is hidden.
+ const musicToggle=document.createElement('label');
+ musicToggle.innerHTML='<input type="checkbox"> BGM';
+ const musicEnabled=musicToggle.querySelector('input');
+ musicEnabled.checked=state.settings.bgm!==false;
+ document.querySelector('.howto-card').append(musicToggle);
+ let musicContext,musicBuffer,musicSource;
+ async function startMusic(){
+  if(!musicEnabled.checked||document.hidden||musicSource)return;
+  try{
+   if(!musicContext)musicContext=new (window.AudioContext||window.webkitAudioContext)();
+   await musicContext.resume();
+   if(!musicBuffer)musicBuffer=fetch('./assets/audio/sunny-number-path.base64').then(async response=>{
+    if(!response.ok)throw new Error('BGM download failed');
+    const bytes=Uint8Array.from(atob(await response.text()),char=>char.charCodeAt(0));
+    return musicContext.decodeAudioData(bytes.buffer);
+   }).catch(()=>{musicBuffer=null;return null});
+   const buffer=await musicBuffer;
+   if(!buffer||musicSource||document.hidden||!musicEnabled.checked)return;
+   const gain=musicContext.createGain();
+   gain.gain.value=.08;
+   gain.connect(musicContext.destination);
+   musicSource=musicContext.createBufferSource();
+   musicSource.buffer=buffer;
+   musicSource.loop=true;
+   musicSource.connect(gain);
+   musicSource.onended=()=>gain.disconnect();
+   musicSource.start();
+  }catch{}
+ }
+ function stopMusic(){
+  if(!musicSource)return;
+  musicSource.stop();
+  musicSource.disconnect();
+  musicSource=null;
+ }
+ document.addEventListener('click',startMusic);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic();else if(musicContext)startMusic()});
+ musicEnabled.onchange=()=>{
+  state.settings.bgm=musicEnabled.checked;
+  save();
+  if(musicEnabled.checked)startMusic();else stopMusic();
+ };
  document.addEventListener('pointerdown',()=>KukuSound.prime(),{passive:true,once:true});
  document.addEventListener('keydown',()=>KukuSound.prime(),{once:true});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)KukuSound.suspend()});
