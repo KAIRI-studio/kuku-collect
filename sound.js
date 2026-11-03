@@ -7,7 +7,7 @@ const clips={tap:{file:'tap',gain:.35,group:'tap'},correct:{file:'correct',gain:
 function create(env){
  let ctx=null;const buffers=new Map(),voices=new Map(),versions=new Map();
  const volume=()=>{const v=env.settings().effectsVolume;return typeof v==='number'&&Number.isFinite(v)?Math.max(0,Math.min(1,v)):.75};
- function setup(){try{if(!ctx)ctx=env.context();if(ctx.state==='suspended')Promise.resolve(ctx.resume()).catch(()=>{});return ctx}catch{return null}}
+ function setup(){try{if(!ctx)ctx=env.context();if(ctx.state==='suspended'||ctx.state==='interrupted')Promise.resolve(ctx.resume()).catch(()=>{});return ctx}catch{return null}}
  function load(key){if(buffers.has(key))return buffers.get(key);const c=setup();if(!c)return Promise.resolve(null);const p=env.fetch('./assets/audio/'+clips[key].file+'.mp3').then(r=>{if(!r.ok)throw Error('audio');return r.arrayBuffer()}).then(b=>c.decodeAudioData(b)).catch(()=>{buffers.delete(key);return null});buffers.set(key,p);return p}
  function stop(group,fade=.05){versions.set(group,(versions.get(group)||0)+1);const v=voices.get(group);if(!v||!ctx)return;voices.delete(group);try{v.gain.gain.cancelScheduledValues(ctx.currentTime);v.gain.gain.setValueAtTime(v.gain.gain.value,ctx.currentTime);v.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fade);v.source.stop(ctx.currentTime+fade+.01)}catch{}}
  function stopAll(){for(const g of ['tap','answer','reveal'])stop(g)}
