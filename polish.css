@@ -195,3 +195,20 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
 
 /* Raise title and subtitle together, keeping the window unobstructed on phones. */
 .launch-title .title-copy{top:clamp(92px,19dvh,170px)}
+
+/* Keep the reveal reachable on short screens and reserve space for the opening capsule. */
+.gacha-reveal {
+  align-items: flex-start;
+  padding-top: max(18px, env(safe-area-inset-top));
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+.gacha-reveal .reveal-card {
+  margin-block: auto;
+  flex-shrink: 0;
+}
+.capsule-display {
+  width: 174px;
+  height: 214px;
+  left: calc(50% - 87px);
+  top: calc(50% - 107px);
+}
