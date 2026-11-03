@@ -60,9 +60,8 @@ $('exportPrevious').onclick=()=>{try{const old=JSON.parse(localStorage.getItem('
 try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v1')}catch{}
 
  const closeReveal=window.closeGachaReveal;window.closeGachaReveal=function(){KukuSound.stop('reveal');return closeReveal()};
- const changeScreen=window.show;window.show=function(id){if(id==='learn'||id==='quiz'){KukuSound.stop('reveal');KukuSound.stop('answer')}return changeScreen(id)};
+ const changeScreen=window.show;window.show=function(id){if(id==='learn'||id==='quiz'){KukuSound.stop('reveal')}return changeScreen(id)};
  // Uploaded sound effects. No background music is started.
- const speech=window.playSpeech;window.playSpeech=function(...args){KukuSound.quietForSpeech();return speech(...args)};
  document.addEventListener('pointerdown',()=>KukuSound.prime(),{passive:true,once:true});
  document.addEventListener('keydown',()=>KukuSound.prime(),{once:true});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)KukuSound.suspend()});
