@@ -61,3 +61,8 @@
 
 /* Rounded illustrated emblems, matching the room's warm linework. */
 .exchange-emblem{width:76px;height:78px;overflow:visible}.exchange-crystal{height:82px}
+
+/* iOS paints a rectangular native tap highlight over custom SVG buttons. */
+#roomFriends .room-friend,#roomFriends .room-friend *{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#roomFriends .room-friend:focus:not(:focus-visible),#roomFriends .room-friend[data-pointer-focus]:focus-visible{outline:none}
+#roomFriends .room-friend .character-art{pointer-events:none}

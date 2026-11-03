@@ -24,7 +24,7 @@ function react(friend){
  const status=$('friendReactionStatus');status.textContent=species[Number(friend.dataset.character)]+'が よろこんでいるよ';
  setTimeout(()=>{bubble.remove();delete friend.dataset.reacting;status.textContent=''},1200);
 }
-function bindFriends(){for(const f of $('roomFriends').querySelectorAll('.room-friend')){f.setAttribute('role','button');f.tabIndex=0;f.setAttribute('aria-label',species[Number(f.dataset.character)]+'と あそぶ');f.onclick=()=>react(f);f.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();react(f)}}}}
+function bindFriends(){for(const f of $('roomFriends').querySelectorAll('.room-friend')){f.setAttribute('role','button');f.tabIndex=0;f.setAttribute('aria-label',species[Number(f.dataset.character)]+'と あそぶ');f.onpointerdown=()=>{f.dataset.pointerFocus='true'};f.onclick=()=>react(f);f.onkeydown=e=>{delete f.dataset.pointerFocus;if(e.key==='Enter'||e.key===' '){e.preventDefault();react(f)}}}}
 const live=document.createElement('span');live.id='friendReactionStatus';live.className='sr-only';live.setAttribute('role','status');$('home').append(live);
 const oldHome=window.home;window.home=function(){oldHome();bindFriends()};bindFriends();
 const oldFinish=window.finish;window.finish=function(){
@@ -79,5 +79,32 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
  refreshVolume();slider.oninput=()=>{state.settings.effectsVolume=Number(slider.value)/100;value.textContent=slider.value+'%';KukuSound.stopAll()};
  slider.onchange=()=>{save();KukuSound.play('tap')};
  const restoreConfirm=$('confirmRestore').onclick;$('confirmRestore').onclick=()=>{KukuSound.stopAll();restoreConfirm();refreshVolume();document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-pressed',String(state.settings.effects));b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする')})};
+
+
+ // Membership changes never replace character SVGs or their image/filter nodes.
+ function updateRoomMembership(){
+  $('clearRoomButton').disabled=state.favorites.length===0;
+  $('collectionCount').textContent=(TEST_ALL_CHARACTERS?'確認用：':'なかま ')+state.owned.length+' / '+species.length+' ・ おへや '+state.favorites.length+' / '+HOME_LIMIT;
+  for(const card of $('monsters').querySelectorAll('.friend-card')){
+   const i=Number(card.dataset.character);if(!state.owned.includes(i))continue;
+   const selected=state.favorites.includes(i),button=card.querySelector('button');
+   card.classList.toggle('in-room',selected);
+   let badge=card.querySelector('.room-badge');
+   if(selected&&!badge){badge=document.createElement('span');badge.className='room-badge';badge.textContent='✓ おへや';card.prepend(badge)}else if(!selected&&badge)badge.remove();
+   if(button){button.disabled=!selected&&state.favorites.length>=HOME_LIMIT;button.textContent=selected?'はずす':button.disabled?'いっぱい':'へやにおく';button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',species[i]+'を'+(selected?'おへやからはずす':'おへやにおく'))}
+  }
+ }
+ window.toggleFavorite=function(i){
+  if(!Number.isInteger(i)||!state.owned.includes(i))return;
+  const at=state.favorites.indexOf(i);
+  if(at>=0)state.favorites.splice(at,1);
+  else if(state.favorites.length<HOME_LIMIT)state.favorites.push(i);
+  else{$('roomActionStatus').textContent='おへやは5にんまで。';return}
+  save();updateRoomMembership();$('roomActionStatus').textContent='';
+ };
+ window.clearRoom=function(){
+  if(!state.favorites.length)return;
+  state.favorites=[];save();updateRoomMembership();$('roomActionStatus').textContent='みんな おへやから はずしたよ。';
+ };
 
 })();
