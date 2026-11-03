@@ -69,10 +69,11 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
  document.querySelector('.howto-card').append(musicToggle);
  let musicContext,musicBuffer,musicSource;
  async function startMusic(){
-  if(!musicEnabled.checked||document.hidden||musicSource)return;
+  if(!musicEnabled.checked||document.hidden)return;
   try{
    if(!musicContext)musicContext=new (window.AudioContext||window.webkitAudioContext)();
-   await musicContext.resume();
+   if(musicContext.state!=='running')await musicContext.resume();
+   if(musicSource)return;
    if(!musicBuffer)musicBuffer=fetch('./assets/audio/sunny-number-path.base64').then(async response=>{
     if(!response.ok)throw new Error('BGM download failed');
     const bytes=Uint8Array.from(atob(await response.text()),char=>char.charCodeAt(0));
