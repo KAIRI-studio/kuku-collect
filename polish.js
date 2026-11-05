@@ -2,6 +2,8 @@
  'use strict';
  const query=new URLSearchParams(location.search);if(query.has('walk-review'))return;
  const Rules=window.KukuRules;Rules.init(state);
+ const rates=$('gachaRates');
+ if(rates)rates.textContent='基本のわりあい：'+Object.entries(Rules.RATES).map(([code,rate])=>code+' '+rate+'％').join(' ／ ');
  const base={home:window.home,show:window.show,learn:window.renderLearn,collection:window.collection,gacha:window.renderGacha};
  let launchOpen=true,launchBusy=false,gachaBusy=false,revealDone=false,revealResult=null,revealFrame=0,revealTimers=[],revealPreviousFocus=null;
  let quizMode='normal',sessionPoints=0,sessionWrong=[],followTarget=null,audio=null,pointTimer=0,fragmentTimer=0;
