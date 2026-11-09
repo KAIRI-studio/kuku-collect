@@ -51,7 +51,7 @@
 
   if(tutorialFirst()||tutorialPending()){
    h.classList.add('tutorial-card');
-   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button><p class="first-path">'+(tutorialPending()?'あとひとつ！':'1かい むりょう')+'</p>';
+   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button><p class="first-path">'+(tutorialPending()?'あとひとつ！':'1かい むりょう')+'</p><button type="button" class="text-button" onclick="show(\'select\')">すぐ 九九を れんしゅう</button>';
    welcome.hidden=true;
   }else h.classList.remove('tutorial-card');
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
