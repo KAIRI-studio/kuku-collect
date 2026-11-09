@@ -238,3 +238,21 @@ button:not(.brand-screen):not(:disabled):active{transform:translateY(2px);filter
     transform: translate(-50%, -50%);
   }
 }
+
+/* Give the first companion and practice their own tap targets. */
+#homeRecommendation.tutorial-card{
+  display:grid;gap:8px;padding:0;border:0;background:transparent;box-shadow:none
+}
+.starter-gacha-card{
+  padding:8px 10px;background:#fff8e5;border:1px solid #b59a66;
+  border-radius:15px;box-shadow:0 2px 0 #daccaf
+}
+#homeRecommendation .starter-gacha-button,
+#homeRecommendation .starter-practice-button{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  width:100%;min-height:44px;padding:6px 10px;border:1px solid;border-radius:10px;
+  text-align:left;font:inherit;font-size:14px;font-weight:700
+}
+#homeRecommendation .starter-gacha-button{background:#f3d78f;color:#5c3b20;border-color:#b58942}
+#homeRecommendation .starter-practice-button{background:#e4f1fb;color:#254f70;border-color:#769db9}
+#homeRecommendation.tutorial-card button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
