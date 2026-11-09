@@ -51,7 +51,16 @@
 
   if(tutorialFirst()||tutorialPending()){
    h.classList.add('tutorial-card');
-   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button>'+(tutorialPending()?'<p class="first-path">あとひとつ！</p>':'')+'<button type="button" class="text-button" onclick="show(\'select\')">すぐ 九九を れんしゅう</button>';
+   const pending=tutorialPending();
+   h.innerHTML=`<div class="starter-gacha-card">
+     <div class="recommend-top"><span>はじめのなかま</span></div>
+     <button type="button" class="recommend-go starter-gacha-button" onclick="startFirstGacha()">
+       ${pending?'へやにおこう':'はじめのガチャ'} <span aria-hidden="true">▶</span>
+     </button>
+   </div>
+   <button type="button" class="starter-practice-button" onclick="show('select')">
+     すぐ 九九を れんしゅう <span aria-hidden="true">▶</span>
+   </button>`;
    welcome.hidden=true;
   }else h.classList.remove('tutorial-card');
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
