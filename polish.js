@@ -51,7 +51,7 @@
 
   if(tutorialFirst()||tutorialPending()){
    h.classList.add('tutorial-card');
-   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button><p class="first-path">'+(tutorialPending()?'あとひとつ！':'1かい むりょう')+'</p><button type="button" class="text-button" onclick="show(\'select\')">すぐ 九九を れんしゅう</button>';
+   h.innerHTML='<div class="recommend-top"><span>はじめのなかま</span></div><button class="recommend-go tutorial-pulse" onclick="startFirstGacha()">'+(tutorialPending()?'へやにおこう':'はじめのガチャ')+' <span aria-hidden="true">▶</span></button>'+(tutorialPending()?'<p class="first-path">あとひとつ！</p>':'')+'<button type="button" class="text-button" onclick="show(\'select\')">すぐ 九九を れんしゅう</button>';
    welcome.hidden=true;
   }else h.classList.remove('tutorial-card');
   let card=$('selectRecommendation');if(!card){card=document.createElement('div');card.id='selectRecommendation';$('select').prepend(card)}
@@ -128,7 +128,7 @@
  window.renderGacha=function(){base.gacha();$('drawButton').disabled=gachaBusy||state.points<100;$('drawButton').setAttribute('aria-busy',String(gachaBusy));$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'pt':'';$('gachaFragments').hidden=!state.fragmentExchangeUnlocked;$('gachaFragments').innerHTML=fragmentBar()+'<button class="fragment-entry" aria-expanded="'+exchangeOpen+'" onclick="toggleFragmentCollection()">'+(exchangeOpen?'とじる':'<img src="./assets/fragment-original.webp" alt=""><span>かけらで むかえる</span><span aria-hidden="true">▶</span>')+'</button>';renderRarityExchange();
  const tutorial=tutorialFirst()||tutorialPending();
  $('drawButton').classList.toggle('tutorial-pulse',tutorial);
- if(tutorial){$('drawButton').disabled=gachaBusy;$('drawButton').textContent=tutorialPending()?'へやにおこう':'むりょうで ひく';$('gachaHint').textContent=tutorialPending()?'なかまを おへやへ':'① ガチャ → ② へやにおく'}else $('drawButton').textContent='100ptで ひく';
+ if(tutorial){$('drawButton').disabled=gachaBusy;$('drawButton').textContent=tutorialPending()?'へやにおこう':'はじめのガチャを ひく';$('gachaHint').textContent=tutorialPending()?'なかまを おへやへ':'① ガチャ → ② へやにおく'}else $('drawButton').textContent='100ptで ひく';
  };
  window.collection=function(){
   base.collection();
