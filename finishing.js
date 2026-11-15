@@ -43,7 +43,7 @@ const tools=document.createElement('details');tools.className='save-tools';tools
 document.querySelector('.howto-card').append(tools);
 const status=$('backupStatus'),preview=()=>new URLSearchParams(location.search).has('preview-progress')||TEST_ALL_CHARACTERS;
 function download(s){const blob=new Blob([JSON.stringify(KukuBackup.pack(s),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='kuku-collect-'+Rules.dayKey(Date.now())+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-$('exportSave').onclick=()=>{if(preview()){status.textContent='確認モードでは書き出せません。';return}download(state);status.textContent='バックアップを書き出しました。'};
+$('exportSave').onclick=()=>{if(preview()){status.textContent='確認モードでは書き出せません。';return}syncKukuSave();download(state);status.textContent='バックアップを書き出しました。'};
 $('importSave').onchange=async event=>{
  pendingRestore=null;$('restorePreview').hidden=true;
  if(preview()){status.textContent='確認モードでは復元できません。';return}
@@ -52,10 +52,10 @@ $('importSave').onchange=async event=>{
  event.target.value='';
 };
 $('cancelRestore').onclick=()=>{pendingRestore=null;$('restorePreview').hidden=true;status.textContent='復元をやめました。'};
-$('confirmRestore').onclick=()=>{
+$('confirmRestore').onclick=withKukuSave(()=>{
  if(!pendingRestore||preview())return;
- try{const next=JSON.stringify(pendingRestore);localStorage.setItem('kuku-save-before-restore-v1',JSON.stringify(state));localStorage.setItem('kuku-save-v1',next);state=pendingRestore;pendingRestore=null;$('restorePreview').hidden=true;$('exportPrevious').hidden=false;closeHowTo();if(!$('titleScreen').hidden)enterGame();else show('home');status.textContent='復元しました。'}catch{status.textContent='保存できませんでした。今の進みぐあいは変えていません。'}
-};
+ try{localStorage.setItem('kuku-save-before-restore-v1',JSON.stringify(state));writeKukuSave(pendingRestore);state=pendingRestore;pendingRestore=null;$('restorePreview').hidden=true;$('exportPrevious').hidden=false;closeHowTo();if(!$('titleScreen').hidden)enterGame();else show('home');status.textContent='復元しました。'}catch{status.textContent='保存できませんでした。今の進みぐあいは変えていません。'}
+});
 $('exportPrevious').onclick=()=>{try{const old=JSON.parse(localStorage.getItem('kuku-save-before-restore-v1'));if(old)download(KukuBackup.validate(KukuBackup.pack(old),species.length))}catch{status.textContent='復元前のデータを読み取れません。'}};
 try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v1')}catch{}
 
@@ -100,11 +100,13 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
  }
  document.addEventListener('click',startMusic);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic();else if(musicContext)startMusic()});
- musicEnabled.onchange=()=>{
-  state.settings.bgm=musicEnabled.checked;
+ const setMusicEnabled=withKukuSave(enabled=>{
+  state.settings.bgm=enabled;
+  musicEnabled.checked=enabled;
   save();
-  if(musicEnabled.checked)startMusic();else stopMusic();
- };
+  if(enabled)startMusic();else stopMusic();
+ });
+ musicEnabled.onchange=()=>setMusicEnabled(musicEnabled.checked);
  document.addEventListener('pointerdown',()=>KukuSound.prime(),{passive:true,once:true});
  document.addEventListener('keydown',()=>KukuSound.prime(),{once:true});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)KukuSound.suspend()});
@@ -118,9 +120,26 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
  document.querySelector('.howto-card').append(options);
  const slider=$('effectsVolume'),value=$('effectsVolumeValue');
  function refreshVolume(){slider.value=Math.round(KukuSound.volume()*100);value.textContent=slider.value+'%'}
- refreshVolume();slider.oninput=()=>{state.settings.effectsVolume=Number(slider.value)/100;value.textContent=slider.value+'%';if(!KukuSound.volume())KukuSound.stopAll()};
- slider.onchange=()=>{save();KukuSound.play('tap')};
- const restoreConfirm=$('confirmRestore').onclick;$('confirmRestore').onclick=()=>{KukuSound.stopAll();restoreConfirm();refreshVolume();document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-pressed',String(state.settings.effects));b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする')})};
+ const setEffectsVolume=withKukuSave(volume=>{
+  state.settings.effectsVolume=volume;
+  refreshVolume();
+  if(!volume)KukuSound.stopAll();
+  save();KukuSound.play('tap');
+ });
+ refreshVolume();
+ slider.oninput=()=>{value.textContent=slider.value+'%';if(Number(slider.value)===0)KukuSound.stopAll()};
+ slider.onchange=()=>setEffectsVolume(Number(slider.value)/100);
+ function refreshAudioSettings(){
+  refreshVolume();
+  musicEnabled.checked=state.settings.bgm!==false;
+  if(musicEnabled.checked&&musicContext)startMusic();else if(!musicEnabled.checked)stopMusic();
+ }
+ document.addEventListener('kuku-save-updated',refreshAudioSettings);
+ const restoreConfirm=$('confirmRestore').onclick;
+ $('confirmRestore').onclick=async()=>{
+  KukuSound.stopAll();await restoreConfirm();refreshAudioSettings();
+  document.querySelectorAll('[data-effects-toggle]').forEach(b=>{b.classList.toggle('sound-off',!state.settings.effects);b.setAttribute('aria-pressed',String(state.settings.effects));b.setAttribute('aria-label','効果音を'+(state.settings.effects?'オフ':'オン')+'にする')});
+ };
 
 
  // Membership changes never replace character SVGs or their image/filter nodes.
@@ -136,17 +155,17 @@ try{$('exportPrevious').hidden=!localStorage.getItem('kuku-save-before-restore-v
    if(button){button.disabled=!selected&&state.favorites.length>=HOME_LIMIT;button.textContent=selected?'はずす':button.disabled?'いっぱい':'へやにおく';button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',species[i]+'を'+(selected?'おへやからはずす':'おへやにおく'))}
   }
  }
- window.toggleFavorite=function(i){
+ window.toggleFavorite=withKukuSave(function(i){
   if(!Number.isInteger(i)||!state.owned.includes(i))return;
   const at=state.favorites.indexOf(i);
   if(at>=0)state.favorites.splice(at,1);
   else if(state.favorites.length<HOME_LIMIT)state.favorites.push(i);
   else{$('roomActionStatus').textContent='おへやは5にんまで。';return}
   save();updateRoomMembership();$('roomActionStatus').textContent='';
- };
- window.clearRoom=function(){
+ });
+ window.clearRoom=withKukuSave(function(){
   if(!state.favorites.length)return;
   state.favorites=[];save();updateRoomMembership();$('roomActionStatus').textContent='みんな おへやから はずしたよ。';
- };
+ });
 
 })();

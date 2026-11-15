@@ -249,14 +249,64 @@ function rarityTag(i){let code=rarityCodes[i];return '<span class="rarity-tag ra
 const FRESH_PROGRESS_PREVIEW=new URLSearchParams(location.search).get('preview-progress')==='1';
 const FRAGMENT_EXCHANGE_PREVIEW=new URLSearchParams(location.search).get('preview-exchange')==='1';
 const TEST_ALL_CHARACTERS=FRAGMENT_EXCHANGE_PREVIEW||FRESH_PROGRESS_PREVIEW||new URLSearchParams(location.search).get('preview-roster')==='1';
-let state;try{state=JSON.parse(localStorage.getItem('kuku-save-v1'))||{points:0,owned:[],clears:{}}}catch(e){state={points:0,owned:[],clears:{}}}
-if(state.rosterVersion!==1){let old=[...new Set(state.owned||[])];let oldFav=state.favorites||[];state.owned=old.slice(0,3).map((_,i)=>i);state.favorites=[...new Set(oldFav.map(i=>old.indexOf(i)).filter(i=>i>=0&&i<3))];state.rosterVersion=1;try{if(!TEST_ALL_CHARACTERS)localStorage.setItem('kuku-save-v1',JSON.stringify(state))}catch(e){}}
+const KUKU_SAVE_KEY = 'kuku-save-v1';
+let savedSnapshot = null;
+try { savedSnapshot = localStorage.getItem(KUKU_SAVE_KEY); } catch {}
+let state = readKukuSave(savedSnapshot);
+
+function readKukuSave(snapshot) {
+ const fresh = {points:0, owned:[], clears:{}, favorites:[]};
+ let saved;
+ try { saved = JSON.parse(snapshot) || fresh; } catch { saved = fresh; }
+ if (saved.rosterVersion !== 1) {
+  const owned = [...new Set(saved.owned || [])];
+  saved.owned = owned.slice(0, 3).map((_, i) => i);
+  saved.favorites = [...new Set((saved.favorites || []).map(i => owned.indexOf(i)).filter(i => i >= 0 && i < 3))];
+  saved.rosterVersion = 1;
+ }
+ if (!Array.isArray(saved.favorites)) saved.favorites = [];
+ return saved;
+}
+
+function syncKukuSave() {
+ if (TEST_ALL_CHARACTERS || !window.KukuRules) return;
+ let snapshot;
+ try { snapshot = localStorage.getItem(KUKU_SAVE_KEY); } catch { return; }
+ if (snapshot === savedSnapshot) return;
+ savedSnapshot = snapshot;
+ state = KukuRules.init(readKukuSave(snapshot));
+ document.dispatchEvent(new Event('kuku-save-updated'));
+}
+
+// Serialize the read, game action, and save across tabs.
+function withKukuSave(action) {
+ return function (...args) {
+  if (TEST_ALL_CHARACTERS) return action(...args);
+  const apply = () => { syncKukuSave(); return action(...args); };
+  return navigator.locks ? navigator.locks.request(KUKU_SAVE_KEY, apply) : apply();
+ };
+}
+
+function writeKukuSave(next) {
+ if (!navigator.locks && localStorage.getItem(KUKU_SAVE_KEY) !== savedSnapshot) {
+  syncKukuSave();
+  throw new Error('The save changed in another tab');
+ }
+ const snapshot = JSON.stringify(next);
+ localStorage.setItem(KUKU_SAVE_KEY, snapshot);
+ savedSnapshot = snapshot;
+}
+
+window.addEventListener('storage', event => {
+ if (event.storageArea === localStorage && event.key === KUKU_SAVE_KEY) syncKukuSave();
+});
+window.addEventListener('pageshow', event => { if (event.persisted) syncKukuSave(); });
 // Explicit review mode is isolated in memory and never grants ownership to the real save.
 if(FRAGMENT_EXCHANGE_PREVIEW){const owned=rarityCodes.map((r,i)=>r==='N'?i:-1).filter(i=>i>=0);state={points:100,owned,favorites:owned.slice(0,3),clears:{},fragments:160,fragmentExchangeUnlocked:true,rosterVersion:1}}
 else if(FRESH_PROGRESS_PREVIEW)state={points:0,owned:[],clears:{},favorites:[],rosterVersion:1};
 else if(TEST_ALL_CHARACTERS){state.owned=species.map((_,i)=>i);if(!Array.isArray(state.favorites)||!state.favorites.length)state.favorites=[0,1,2]}
 if(new URLSearchParams(location.search).has('preview-refine')&&TEST_ALL_CHARACTERS)state.favorites=[31,32,38];
-let dan=1,group=0,questions=[],index=0,answered=false,correct=0;const $=id=>document.getElementById(id);function save(){if(TEST_ALL_CHARACTERS){$('saveStatus').textContent='キャラ確認用（進みぐあいは保存しません）';return}try{localStorage.setItem('kuku-save-v1',JSON.stringify(state))}catch(e){$('saveStatus').textContent='ほぞんできません。ブラウザの設定を確認してください。';alert('進みぐあいを保存できませんでした。ブラウザの空き容量や設定を確認してください。')}}let speechRun=0,speechActive=false,speechAll=false;
+let dan=1,group=0,questions=[],index=0,answered=false,correct=0;const $=id=>document.getElementById(id);function save(){if(TEST_ALL_CHARACTERS){$('saveStatus').textContent='キャラ確認用（進みぐあいは保存しません）';return}try{writeKukuSave(state)}catch(e){$('saveStatus').textContent='ほぞんできません。ブラウザの設定を確認してください。';alert('進みぐあいを保存できませんでした。ブラウザの空き容量や設定を確認してください。')}}let speechRun=0,speechActive=false,speechAll=false;
 function clearSpeechUI(){document.querySelectorAll('#lines .line').forEach(l=>{l.classList.remove('is-speaking');let b=l.querySelector('button');if(b){b.classList.remove('is-speaking');b.removeAttribute('aria-pressed');if(b.dataset.original)b.innerHTML=b.dataset.original}});let all=document.querySelector('.all-sounds');if(all){all.classList.remove('is-speaking');all.setAttribute('aria-pressed','false');let t=all.querySelector('.step-copy strong');if(t)t.textContent='まとめてきく'}let status=document.querySelector('#speechStatus');if(status)status.textContent='';}
 function stopSpeech(){speechRun++;speechActive=false;speechAll=false;if('speechSynthesis'in window)speechSynthesis.cancel();clearSpeechUI()}
 function playSpeech(items,all=false){
@@ -361,8 +411,8 @@ let depth=w.y/ah,scale=1;w.el.style.transform='translate('+w.x+'px,'+(w.y-ah)+'p
 if(!Array.isArray(state.favorites))state.favorites=[];
 function updatePoints(){$('points').textContent='✦ '+state.points+' pt'}
 function renderGacha(){updatePoints();$('gachaBalance').textContent='もっているポイント：'+state.points+' pt';$('drawButton').disabled=state.points<100;$('gachaHint').textContent=state.points<100?'あと '+(100-state.points)+'ポイントで ひけるよ':'1かい100ポイント。同じこがでることもあるよ。'}
-function toggleFavorite(i){if(!state.owned.includes(i))return;let at=state.favorites.indexOf(i);if(at>=0)state.favorites.splice(at,1);else if(state.favorites.length<HOME_LIMIT)state.favorites.push(i);else{alert('おへやは5にんまで。');return}save();collection()}
-function clearRoom(){if(!state.favorites.length)return;state.favorites=[];save();collection();$('roomActionStatus').textContent='みんな おへやから はずしたよ。'}
+var toggleFavorite=withKukuSave(function(i){if(!state.owned.includes(i))return;let at=state.favorites.indexOf(i);if(at>=0)state.favorites.splice(at,1);else if(state.favorites.length<HOME_LIMIT)state.favorites.push(i);else{alert('おへやは5にんまで。');return}save();collection()});
+var clearRoom=withKukuSave(function(){if(!state.favorites.length)return;state.favorites=[];save();collection();$('roomActionStatus').textContent='みんな おへやから はずしたよ。'});
 
 let collectionView='owned',collectionRarity='all';
 function setCollectionRarity(value){collectionRarity=['LR','SR','R','N'].includes(value)?value:'all';collection();$('collection').scrollTop=0}
@@ -395,7 +445,12 @@ function collection(){
 }
 home();if(TEST_ALL_CHARACTERS)$('saveStatus').textContent='キャラ確認用（進みぐあいは保存しません）';
 
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+ navigator.serviceWorker.addEventListener('message', event => {
+  if (event.data?.type === 'kuku-page-version' && event.ports[0]) event.ports[0].postMessage('save1');
+ });
+ navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+}
 
 if(new URLSearchParams(location.search).has('walk-review')){stopRoomWalk();document.querySelector('.app').style.display='none';let board=document.createElement('div');board.id='walk-review';board.style='padding:20px;background:#faf3e3;color:#573e25;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:absolute;inset:0;overflow:auto;z-index:999';document.body.append(board);for(let i=0;i<species.length;i++)for(let dir of ['front','side','back']){let query=new URLSearchParams(location.search);if(query.has('audit')&&dir!==query.get('audit'))continue;if(query.has('audit')){board.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';board.style.gap='6px';board.style.padding='8px'}if(i<Number(query.get('from')||0)||i>=Number(query.get('to')||species.length))continue;if(new URLSearchParams(location.search).has('focus')&&(i!==Number(new URLSearchParams(location.search).get('focus'))||dir!==(new URLSearchParams(location.search).get('direction')||'front')))continue;if(new URLSearchParams(location.search).has('focus'))board.style.gridTemplateColumns='1fr';let card=document.createElement('div');card.style='background:#fffdf5;border:1px solid #c8b995;border-radius:12px;padding:10px';if(query.has('audit')){card.style.padding='5px';card.style.fontSize='12px'}card.innerHTML='<b>'+(query.has('audit')?i+' ':'')+species[i]+' / '+dir+'</b><div style="display:flex"></div>';let row=card.querySelector('div');for(let phase of (query.has('audit')?[Number(query.get('phase')||0)]:new URLSearchParams(location.search).has('lines')?[0]:[0,Math.PI/2,Math.PI,Math.PI*1.5])){let holder=document.createElement('div');holder.style=(query.has('audit')||new URLSearchParams(location.search).has('lines'))?'width:100%':'width:25%';holder.innerHTML=character(i,true);row.append(holder);let svg=holder.querySelector('svg');svg.style=query.has('audit')?'width:100%;height:88px':new URLSearchParams(location.search).has('lines')?'width:100%;height:230px':new URLSearchParams(location.search).has('focus')?'width:100%;height:450px':'width:100%;height:130px';svg.querySelectorAll('.rig-view').forEach(v=>{v.style.display=v.classList.contains('rig-'+dir)?'inline':'none';if(v.style.display==='inline')poseRig(v,dir,phase,true)});}board.append(card)}}
 </script><script>
@@ -433,7 +488,7 @@ window.addEventListener('orientationchange', () => stopSpeech());
   fitGameViewport();
 })();
 </script>
-<script src="./progression.js?v=gacha-rates1"></script><script src="./sound.js?v=audio-recovery1"></script><script src="./polish.js?v=starter-buttons1"></script><script src="./backup.js?v=tutorial1"></script><script src="./finishing.js?v=audio-recovery1"></script><script>if(typeof window.startQuiz==='function'){const castorStartQuiz=window.startQuiz;window.startQuiz=function(){const result=castorStartQuiz.apply(this,arguments);window.castorAnalytics?.event('game_start');return result;};}</script></body></html>
+<script src="./progression.js?v=gacha-rates1"></script><script src="./sound.js?v=audio-recovery1"></script><script src="./polish.js?v=save1"></script><script src="./backup.js?v=tutorial1"></script><script src="./finishing.js?v=save1"></script><script>if(typeof window.startQuiz==='function'){const castorStartQuiz=window.startQuiz;window.startQuiz=function(){const result=castorStartQuiz.apply(this,arguments);window.castorAnalytics?.event('game_start');return result;};}</script></body></html>
 
 
 
