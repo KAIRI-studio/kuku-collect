@@ -469,12 +469,19 @@ window.addEventListener('orientationchange', () => stopSpeech());
 (function () {
   const viewport = document.querySelector('#gameViewport');
   const visual = window.visualViewport;
+  const mobileBrowser=window.matchMedia('(pointer: coarse) and (display-mode: browser)').matches &&
+    navigator.standalone!==true && CSS.supports('height','100svh');
+  const stableViewport=mobileBrowser?document.createElement('div'):null;
+  if(stableViewport){
+    stableViewport.style.cssText='position:fixed;top:0;left:0;width:0;height:100svh;visibility:hidden;pointer-events:none';
+    document.documentElement.append(stableViewport);
+  }
   const minimumHeight = 760;
   const maximumWidth = 520;
 
   function fitGameViewport() {
     const width = document.documentElement.clientWidth;
-    const height = visual?.height || document.documentElement.clientHeight;
+    const height = (stableViewport && parseFloat(getComputedStyle(stableViewport).height)) || visual?.height || document.documentElement.clientHeight;
     if (!width || !height) return;
     const scale = Math.min(1, height / minimumHeight);
     viewport.style.setProperty('--kuku-scale', String(scale));

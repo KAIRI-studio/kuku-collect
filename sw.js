@@ -1,4 +1,4 @@
-const CACHE='kuku-collect-save1';
+const CACHE='kuku-collect-viewport-stable1';
 const ASSETS=['./progression.js?v=gacha-rates1','./','./index.html','./manifest.webmanifest','./manifest.webmanifest?v=homeicon1','./assets/app-icon/apple-touch-icon-v1.png','./assets/app-icon/icon-192-v1.png','./assets/app-icon/icon-512-v1.png','./assets/app-icon/favicon-v1.png','./polish.css?v=viewport-fit1','./polish.js?v=save1','./sound.js?v=audio-recovery1','./audio.css?v=uploaded1','./assets/audio/tap.mp3','./assets/audio/correct.mp3','./assets/audio/wrong.mp3','./assets/audio/arrival.mp3','./assets/audio/capsule.mp3','./backup.js?v=tutorial1','./finishing.js?v=save1','./finishing.css?v=tutorial1'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 async function refreshOlderPages() {
